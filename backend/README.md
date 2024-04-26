@@ -86,7 +86,7 @@ python manage.py runserver
 {
     "error": 
         {
-            "message": "Email already exists"
+            "message": "Missing required fields: email"
         }
 }
 ```
