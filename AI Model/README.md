@@ -1,5 +1,9 @@
 There are two APIs in AICoverGen/apis.py
 
+Beforing running, download the Hubert checkpoints (this only need to be run once):
+
+python src/download_models.py
+
 ##### generate_song
 
 ```python
