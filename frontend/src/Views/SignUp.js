@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import axios from "axios"; // Import axios
+import { request } from "../utils";
 
 function SignUpPage() {
   const navigate = useNavigate(); // Hook for redirection
@@ -95,7 +96,7 @@ function SignUpPage() {
     event.preventDefault();
     if (!Object.values(formErrors).some((x) => x)) {
       try {
-        const response = await axios.post("users/signup/", {
+        const response = await request.post("users/signup/", {
           email: formData.email,
           username: formData.username,
           password: formData.password,
