@@ -68,3 +68,6 @@ logs/
 
 # Ignore Redis dump file
 dump.rdb
+
+# Ignore music files
+musics/

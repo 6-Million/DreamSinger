@@ -9,7 +9,12 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from .models import User
+from .utils import yttomp3
 
+'''
+Example of using yttomp3 to create a mp3 file in /backend/musics/:
+yttomp3("https://www.youtube.com/watch?v=szGomck3sZI")
+'''
 
 def authentication(request):
     try:
