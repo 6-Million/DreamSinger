@@ -27,7 +27,7 @@ const userReducer = userStore.reducer;
 const fetchLogin = (loginForm) => {
   return async (dispatch) => {
     try {
-      const res = await request.get("/data", loginForm); //访问后端请求
+      const res = await request.get("/users/login/", loginForm); //访问后端请求
       console.log("API Response:", res); // 查看API返回的数据
       if (res && res.access_token) {
         dispatch(setToken(res.access_token)); // 正确地访问 access_token

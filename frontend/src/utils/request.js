@@ -13,7 +13,7 @@ request.interceptors.request.use(
     const token = getToken();
     if (token) {
       //前面是axios固定写法，后面后端要求怎么写
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers.uthorization = `Bearer ${token}`;
     }
     return config;
   },
