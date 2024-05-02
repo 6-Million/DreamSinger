@@ -113,6 +113,7 @@ def login(request):
     except User.DoesNotExist:
             return JsonResponse(status=404, data={"error": {"message": "User not found"}})
     except Exception as e:
+        print(e)
         return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})
 
 
@@ -181,6 +182,7 @@ class SongView(View):
         user_data = authentication(request)
         # Retrieve user data from the database
         user = User.objects.get(email=user_data["email"])
+        print(type(user))
         model = request.POST.get('model') # user specified voice model
         ytURL = request.POST.get('youtubelink')
         file = request.FILES.get('file') # user uploaded song file
@@ -188,6 +190,7 @@ class SongView(View):
         if ytURL and file:
             return JsonResponse({'error': 'You can only upload a file or provide a YouTube link, not both.'}, status=400)
         if file:
+            
             if not file.name.endswith(('.mp3', '.wav')):
                 return JsonResponse({'error': 'Invalid file format. Only .mp3 and .wav files are allowed.'}, status=400)
             fs = FileSystemStorage()
