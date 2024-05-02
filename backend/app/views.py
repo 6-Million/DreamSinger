@@ -177,6 +177,10 @@ class UserView(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class SongView(View):
     def post(self, request, *args, **kwargs):
+        # Authenticate user
+        user_data = authentication(request)
+        # Retrieve user data from the database
+        user = User.objects.get(email=user_data["email"])
         model = request.POST.get('model') # user specified voice model
         ytURL = request.POST.get('youtubelink')
         file = request.FILES.get('file') # user uploaded song file
@@ -189,13 +193,13 @@ class SongView(View):
             fs = FileSystemStorage()
             filename = fs.save(file.name, file)
             uploaded_file_url = fs.url(filename)
-            song = Song(model=model, file=uploaded_file_url)
+            song = Song(user=user, model=model, file=uploaded_file_url)
             song.save()
             return JsonResponse({'data': {'outputfile': uploaded_file_url}}, status=200)
         
         if ytURL:
             file_url = yttomp3(ytURL)
-            song = Song(model=model, file=file_url)
+            song = Song(user=user, model=model, file=file_url)
             song.save()
             return JsonResponse({'data': {'outputfile': file_url}}, status=200)
         

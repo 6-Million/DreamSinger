@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 class User(models.Model):
@@ -13,6 +14,10 @@ class User(models.Model):
         db_table = "users"
 
 class Song(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
     model = models.IntegerField()
     file = models.FileField(upload_to='songs/')  # uploaded file
 
