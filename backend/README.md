@@ -224,3 +224,52 @@ Body
         }
 }
 ```
+### 5. `POST /api/v1/songs/`
+#### Request Header
+```
+{
+	"Content-Type": "multipart/form-data"
+}
+```
+If the user choose to upload the YouTube link for the song：
+#### Request Body
+```
+{
+    "model": int,
+    "youtubelink": "string"
+}
+```
+If the user choose to upload file of the song directly：
+#### Request Body
+      {
+    "model": int,
+    "file": file
+}
+```
+#### Response
+200 
+```
+{
+    "data": 
+    {
+        "outputfile": “String” // path to the file
+    }
+}
+```
+400 
+```
+{
+    "error": 
+    {
+        "message": "You can only upload a file or provide a YouTube link, not both."
+    }
+    "error": 
+    {
+        "message": "Invalid file format. Only .mp3 and .wav files are allowed."
+    }
+    "error": 
+    {
+        "message": "Please provide a file or a YouTube link."
+    }
+}
+```
