@@ -228,7 +228,8 @@ Body
 #### Request Header
 ```
 {
-	"Content-Type": "multipart/form-data"
+	"Authorization": "Bearer <ACCESS_TOKEN>"
+    "Content-Type": "multipart/form-data"
 }
 ```
 If the user choose to upload the YouTube link for the song：
@@ -273,4 +274,19 @@ If the user choose to upload file of the song directly：
         "message": "Please provide a file or a YouTube link."
     }
 }
+```
+### 6. `GET /api/v1/songs?page=[page]&num=[number per page]`
+#### Request Header
+```
+{
+	"Authorization": "Bearer <ACCESS_TOKEN>"
+}
+```
+#### Response
+200 
+```
+List< 
+"id": int,
+"name": String
+>
 ```
