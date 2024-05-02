@@ -241,7 +241,8 @@ If the user choose to upload the YouTube link for the song：
 ```
 If the user choose to upload file of the song directly：
 #### Request Body
-      {
+```
+{
     "model": int,
     "file": file
 }
