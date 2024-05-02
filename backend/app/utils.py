@@ -21,4 +21,6 @@ def yttomp3(yt_url):
     new_file = base + '.mp3'
     os.rename(out_file, new_file) 
 
-    return new_file
+    audio_title = yt.title
+
+    return new_file, audio_title

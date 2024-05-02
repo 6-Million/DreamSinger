@@ -15,6 +15,7 @@ class User(models.Model):
 
 class Song(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=200)
     model = models.IntegerField()
     file = models.FileField(upload_to='songs/')  # uploaded file
 

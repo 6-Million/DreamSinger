@@ -1,6 +1,7 @@
 import bcrypt
 import json
 import jwt
+import os
 from jwt.exceptions import InvalidSignatureError
 from django.conf import settings
 from django.views import View
@@ -9,6 +10,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.core.files.storage import FileSystemStorage
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from .models import User, Song
 from .utils import yttomp3
 
@@ -193,23 +195,42 @@ class SongView(View):
                 return JsonResponse({'error': 'Invalid file format. Only .mp3 and .wav files are allowed.'}, status=400)
             fs = FileSystemStorage()
             filename = fs.save(file.name, file)
+            songname = os.path.splitext(file.name)[0]
             uploaded_file_url = fs.url(filename)
-            song = Song(user=user, model=model, file=uploaded_file_url)
+            song = Song(user=user, name=songname, model=model, file=uploaded_file_url)
             song.save()
             return JsonResponse({'data': {'outputfile': uploaded_file_url}}, status=200)
         
         if ytURL:
-            file_url = yttomp3(ytURL)
-            song = Song(user=user, model=model, file=file_url)
+            file_url, audio_name = yttomp3(ytURL)
+            song = Song(user=user, name=audio_name, model=model, file=file_url)
             song.save()
             return JsonResponse({'data': {'outputfile': file_url}}, status=200)
         
         return JsonResponse({'error': 'Please provide a file or a YouTube link.'}, status=400)
 
-
     
     def get(self, request, *args, **kwargs):
-        page = request.GET.get('page', 1)
-        num = request.GET.get('num', 10)
+        # Authenticate the user and get their data
+        user_data = authentication(request)
+        # Retrieve the user from the database
+        user = User.objects.get(email=user_data["email"])
 
-        return JsonResponse({'message': 'Get songs successfully', 'page': page, 'num': num}, status=200)
+        page = request.GET.get('page', 1) # Default page is 1 if not provided
+        num = request.GET.get('num', 10) # Default number of songs per page is 10 if not provided
+
+        # Get all songs for the authenticated user and only the 'id' and 'name' fields
+        songs = Song.objects.filter(user=user).order_by('id').values('id', 'name')
+        paginator = Paginator(songs, num)  # Create a Paginator object
+
+        try:
+            songs = paginator.page(page)  # Get the songs for the requested page
+        except PageNotAnInteger:
+            songs = paginator.page(1)  # If page is not an integer, show first page
+        except EmptyPage:
+            songs = paginator.page(paginator.num_pages)  # If page is out of range, show last page
+
+        # Convert the songs to a list of dictionaries
+        song_list = list(songs)
+
+        return JsonResponse(song_list, safe=False, status=200)
