@@ -11,3 +11,10 @@ class User(models.Model):
 
     class Meta:
         db_table = "users"
+
+class Song(models.Model):
+    model = models.IntegerField()
+    file = models.FileField(upload_to='songs/')  # uploaded file
+
+    class Meta:
+        db_table = "songs"

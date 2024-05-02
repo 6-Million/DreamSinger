@@ -8,7 +8,8 @@ from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from .models import User
+from django.core.files.storage import FileSystemStorage
+from .models import User, Song
 from .utils import yttomp3
 
 '''
@@ -172,3 +173,38 @@ class UserView(View):
             return JsonResponse(status=401, data={"error": {"message": "Unauthorized"}})
         except Exception as e:
             return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})
+        
+@method_decorator(csrf_exempt, name='dispatch')
+class SongView(View):
+    def post(self, request, *args, **kwargs):
+        model = request.POST.get('model') # user specified voice model
+        ytURL = request.POST.get('youtubelink')
+        file = request.FILES.get('file') # user uploaded song file
+
+        if ytURL and file:
+            return JsonResponse({'error': 'You can only upload a file or provide a YouTube link, not both.'}, status=400)
+        if file:
+            if not file.name.endswith(('.mp3', '.wav')):
+                return JsonResponse({'error': 'Invalid file format. Only .mp3 and .wav files are allowed.'}, status=400)
+            fs = FileSystemStorage()
+            filename = fs.save(file.name, file)
+            uploaded_file_url = fs.url(filename)
+            song = Song(model=model, file=uploaded_file_url)
+            song.save()
+            return JsonResponse({'data': {'outputfile': uploaded_file_url}}, status=200)
+        
+        if ytURL:
+            file_url = yttomp3(ytURL)
+            song = Song(model=model, file=file_url)
+            song.save()
+            return JsonResponse({'data': {'outputfile': file_url}}, status=200)
+        
+        return JsonResponse({'error': 'Please provide a file or a YouTube link.'}, status=400)
+
+
+    
+    def get(self, request, *args, **kwargs):
+        page = request.GET.get('page', 1)
+        num = request.GET.get('num', 10)
+
+        return JsonResponse({'message': 'Get songs successfully', 'page': page, 'num': num}, status=200)

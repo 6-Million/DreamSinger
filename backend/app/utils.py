@@ -1,5 +1,6 @@
 # importing packages 
 from pytube import YouTube 
+from django.conf import settings
 import os 
   
 def yttomp3(yt_url):
@@ -10,7 +11,7 @@ def yttomp3(yt_url):
     video = yt.streams.filter(only_audio=True).first() 
     
     # check for destination to save file 
-    destination = 'musics/'
+    destination = settings.MEDIA_ROOT
     
     # download the file 
     out_file = video.download(output_path=destination) 
@@ -19,3 +20,5 @@ def yttomp3(yt_url):
     base, ext = os.path.splitext(out_file) 
     new_file = base + '.mp3'
     os.rename(out_file, new_file) 
+
+    return new_file
