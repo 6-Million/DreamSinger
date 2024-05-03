@@ -5,7 +5,7 @@ import os
 from jwt.exceptions import InvalidSignatureError
 from django.conf import settings
 from django.views import View
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse, Http404
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -220,7 +220,7 @@ class SongView(View):
         num = request.GET.get('num', 10) # Default number of songs per page is 10 if not provided
 
         # Get all songs for the authenticated user and only the 'id' and 'name' fields
-        songs = Song.objects.filter(user=user).order_by('id').values('id', 'name')
+        songs = Song.objects.filter(user=user).order_by('id').values('id', 'name', 'model')
         paginator = Paginator(songs, num)  # Create a Paginator object
 
         try:
@@ -234,3 +234,61 @@ class SongView(View):
         song_list = list(songs)
 
         return JsonResponse(song_list, safe=False, status=200)
+    
+@method_decorator(csrf_exempt, name='dispatch')
+class SongFileView(View):
+    def get(self, request, *args, **kwargs):
+        # Authenticate the user and get their data
+        user_data = authentication(request)
+        # Retrieve the user from the database
+        user = User.objects.get(email=user_data["email"])
+        # Retrieve the song ID from the URL
+        song_id = request.GET.get('id')
+        try:
+            # Retrieve the song from the database
+            song = Song.objects.get(user=user, id=song_id)
+        except Song.DoesNotExist:
+            raise Http404("Song does not exist")
+
+        # Create a FileResponse object with the song file
+        # response = FileResponse(open(song.file.path, 'rb'))
+        # return response
+        # Create a dictionary with the file URL, song name and the model
+        return JsonResponse({
+            "file": song.file.url,
+            "name": song.name,
+            "model": song.model
+        }, status=200)
+    
+    def put(self, request, *args, **kwargs): # Change the name of the song file
+        # Authenticate the user and get their data
+        user_data = authentication(request)
+        # Retrieve the user from the database
+        user = User.objects.get(email=user_data["email"])
+        # Retrieve the song ID from the URL
+        song_id = request.GET.get('id')
+        # Retrieve the song from the database
+        song = Song.objects.get(user=user, id=song_id)
+        # Extract the new name from the request
+        new_name = json.loads(request.body)["name"]
+        # Update the song name
+        song.name = new_name
+        # Save the changes to the database
+        song.save()
+        # Return a success response
+        return JsonResponse({"message": "Name of the song is changed"}, status=200)
+
+    
+    def delete(self, request, *args, **kwargs):
+        # Authenticate the user and get their data
+        user_data = authentication(request)
+        # Retrieve the user from the database
+        user = User.objects.get(email=user_data["email"])
+        # Retrieve the song ID from the URL
+        song_id = request.GET.get('id')
+        # Retrieve the song from the database
+        song = Song.objects.get(user=user, id=song_id)
+        # Delete the song from the database
+        song.delete()
+        # Return a success response
+        return JsonResponse({"message": "This song is deleted"}, status=204)
