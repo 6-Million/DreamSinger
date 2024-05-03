@@ -290,3 +290,59 @@ List<
 "name": String
 >
 ```
+### 7. `GET /api/v1/songs/file/{id}/`
+#### Request Header
+```
+{
+	"Authorization": "Bearer <ACCESS_TOKEN>"
+}
+```
+#### Response
+200 
+```
+{
+    "file": song.file.url,
+    "name": song.name,
+    "model": song.model
+}
+```
+404 
+```
+{
+	"message": "Song not found"
+}
+```
+### 8. `PUT /api/v1/songs/file/{id}/`
+#### Request Header
+```
+{
+	"Authorization": "Bearer <ACCESS_TOKEN>"
+}
+```
+#### Request Body
+```
+{
+	"name": String
+}
+```
+#### Response
+200 
+```
+{
+    "message": "Name of the song is changed"
+}
+```
+### 9. `DELETE /api/v1/songs/file/{id}/`
+#### Request Header
+```
+{
+	"Authorization": "Bearer <ACCESS_TOKEN>"
+}
+```
+#### Response
+204 
+```
+{
+    "message": "This song is deleted"
+}
+```
