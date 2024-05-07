@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {AppBar, Toolbar, Typography, IconButton, MenuItem, Menu, Box} from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu'; // 仅作示例，根据需要替换
+import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,15 +17,14 @@ function Navbar() {
     };
 
     const handleLogout = () => {
-        // 处理登出逻辑
-        handleClose();
-        console.log('Logged out');
+        localStorage.removeItem('token');
+        window.location.href = '/login';
     };
 
     return (
         <AppBar position="static" sx={{ backgroundColor: 'black' }}>
             <Toolbar>
-                <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2, mt: 1 }}>
+                <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2, mt: 0 }} onClick={() => navigate('/')}>
                     <img src="/logo.jpg" alt="Logo" style={{ width: 170, height: 38}} />
                 </IconButton>
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
@@ -35,7 +34,7 @@ function Navbar() {
                             px: 3, // 设置水平内边距
                             py: 1, // 设置垂直内边距
                             ml: -1,
-                            mt: 1.5,
+                            mt: 1,
                             bgcolor: 'black', // 背景颜色
                             color: 'white', // 文字颜色
                             borderRadius: '10px', // 边角圆润
@@ -59,7 +58,7 @@ function Navbar() {
                             mx: 10,
                             px: 3,
                             py: 1,
-                            mt: 1.5,
+                            mt: 1,
                             bgcolor: 'black',
                             color: 'white',
                             borderRadius: '10px',
@@ -74,7 +73,7 @@ function Navbar() {
                             alignItems: 'center',
                             justifyContent: 'center'
                         }}
-                        onClick={() => navigate('/b')}
+                        onClick={() => navigate('/songs')}
                     >
                         My Songs
                     </Box>
@@ -83,7 +82,7 @@ function Navbar() {
                             mx: 10,
                             px: 3,
                             py: 1,
-                            mt: 1.5,
+                            mt: 1,
                             bgcolor: 'black',
                             color: 'white',
                             borderRadius: '10px',
@@ -98,7 +97,7 @@ function Navbar() {
                             alignItems: 'center',
                             justifyContent: 'center'
                         }}
-                        onClick={() => navigate('/c')}
+                        onClick={() => navigate('/profile')}
                     >
                         Profile
                     </Box>
@@ -133,7 +132,7 @@ function Navbar() {
                             onMouseLeave: handleClose,
                         }}
                     >
-                        <MenuItem onClick={handleClose}>Log out</MenuItem>
+                        <MenuItem onClick={handleLogout}>Log out</MenuItem>
                     </Menu>
                 </div>
             </Toolbar>

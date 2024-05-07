@@ -136,7 +136,7 @@ function AiCover() {
     <div style={backgroundStyle}>
       <Navbar/>
       <div style={{ width: "100%", textAlign: "center" }}>
-        <div className="jacquard-24-regular" style={{ marginTop: 30 }}>
+        <div className="jacquard-24-regular" style={{ marginTop: 8 }}>
           <span style={{ fontSize: 100, color: "blue" }}>Cover Song</span>
         </div>
       </div>
