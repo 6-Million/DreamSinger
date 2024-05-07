@@ -50,7 +50,7 @@ const fetchLogin = (loginForm) => {
 const fetchUserInfo = () => {
   return async (dispatch) => {
     try {
-      const res = await request.get("/users");
+      const res = await request.get("/users/");
       console.log("User Info Response:", res);
       dispatch(setUserInfo(res.data));
     } catch (error) {
