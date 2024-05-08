@@ -117,7 +117,8 @@ function AiCover() {
   };
 
   const backgroundStyle = {
-    height: "100vh",
+    // marginTop: "1.9%",
+    height: "100%",
     backgroundImage: hoverBgImage,
     backgroundSize: "cover",
     backgroundPosition: "center",
@@ -136,7 +137,7 @@ function AiCover() {
     <div style={backgroundStyle}>
       <Navbar/>
       <div style={{ width: "100%", textAlign: "center" }}>
-        <div className="jacquard-24-regular" style={{ marginTop: 8 }}>
+        <div className="jacquard-24-regular" style={{ marginTop: '0.5%' }}>
           <span style={{ fontSize: 100, color: "blue" }}>Cover Song</span>
         </div>
       </div>
