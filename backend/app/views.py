@@ -13,6 +13,7 @@ from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from .models import User, Song
 from .utils import yttomp3
+from ..AICoverGen.apis import generate_song
 
 '''
 Example of using yttomp3 to create a mp3 file in /backend/musics/:
@@ -197,15 +198,23 @@ class SongView(View):
             filename = fs.save(file.name, file)
             songname = os.path.splitext(file.name)[0]
             uploaded_file_url = fs.url(filename)
-            song = Song(user=user, name=songname, model=model, file=uploaded_file_url)
+
+            # Generate cover
+            cover_song_url = generate_song(uploaded_file_url, model, "..backend/cover/", 0)
+
+            song = Song(user=user, name=songname, model=model, file=cover_song_url)
             song.save()
-            return JsonResponse({'data': {'outputfile': uploaded_file_url}}, status=200)
+            return JsonResponse({'data': {'outputfile': cover_song_url}}, status=200)
         
         if ytURL:
             file_url, audio_name = yttomp3(ytURL)
-            song = Song(user=user, name=audio_name, model=model, file=file_url)
+
+            # Generate cover
+            cover_song_url = generate_song(file_url, model, "..backend/cover/", 0)
+
+            song = Song(user=user, name=audio_name, model=model, file=cover_song_url)
             song.save()
-            return JsonResponse({'data': {'outputfile': file_url}}, status=200)
+            return JsonResponse({'data': {'outputfile': cover_song_url}}, status=200)
         
         return JsonResponse({'error': 'Please provide a file or a YouTube link.'}, status=400)
 
