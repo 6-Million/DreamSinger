@@ -15,10 +15,6 @@ from .models import User, Song
 from .utils import yttomp3
 from ..AICoverGen.apis import generate_song
 
-'''
-Example of using yttomp3 to create a mp3 file in /backend/musics/:
-yttomp3("https://www.youtube.com/watch?v=szGomck3sZI")
-'''
 
 def authentication(request):
     try:
@@ -116,7 +112,7 @@ def login(request):
     except User.DoesNotExist:
             return JsonResponse(status=404, data={"error": {"message": "User not found"}})
     except Exception as e:
-        return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})
+        return JsonResponse(status=500, data={"error": {"message": f"{e}"}})
 
 
 @method_decorator(csrf_exempt, name='dispatch')
