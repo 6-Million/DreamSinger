@@ -13,7 +13,7 @@ from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from .models import User, Song
 from .utils import yttomp3
-from ..AICoverGen.apis import generate_song
+# from ..AICoverGen.apis import generate_song
 
 
 def authentication(request):
