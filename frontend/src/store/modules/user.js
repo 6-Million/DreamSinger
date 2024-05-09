@@ -59,6 +59,24 @@ const fetchUserInfo = () => {
   };
 };
 
-export { setToken, fetchLogin, fetchUserInfo };
+// 更新用户信息的异步方法
+const updateUserInfo = (userInfo) => {
+  return async (dispatch) => {
+    try {
+      const res = await request.put("/users/", userInfo);
+      console.log("Update User Info Response:", res);
+      if (res && res.data) {
+        dispatch(setUserInfo(res.data)); // 假设后端返回更新后的用户信息
+        alert("User info updated successfully!");
+        return res.data;
+      }
+    } catch (error) {
+      console.error("Update user info failed:", error);
+      alert("Failed to update user info!");
+    }
+  };
+};
+
+export { setToken, fetchLogin, fetchUserInfo, updateUserInfo };
 
 export default userReducer;
