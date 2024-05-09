@@ -15,10 +15,6 @@ from .models import User, Song
 from .utils import yttomp3
 from ..AICoverGen.apis import generate_song
 
-'''
-Example of using yttomp3 to create a mp3 file in /backend/musics/:
-yttomp3("https://www.youtube.com/watch?v=szGomck3sZI")
-'''
 
 def authentication(request):
     try:
