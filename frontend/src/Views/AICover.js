@@ -48,20 +48,6 @@ function AiCover() {
   const [timer, setTimer] = useState(0);
   const [showLoading, setShowLoading] = useState(false);
 
-  const [fileUrl, setFileUrl] = useState('');
-
-  useEffect(() => {
-    // 检查outputFile是否存在并且是一个文件对象
-    if (outputFile) {
-      // 创建Blob URL
-      const url = URL.createObjectURL(outputFile);
-      setFileUrl(url);
-
-      // 清理函数，当组件卸载或者outputFile变化时，释放URL
-      return () => URL.revokeObjectURL(url);
-    }
-  }, [outputFile]);
-
   useEffect(() => {
     console.log('outputFile has been updated to:', outputFile);
   }, [outputFile]);
@@ -101,7 +87,6 @@ function AiCover() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setShowLoading(true);
-
     const data = new FormData();
     data.append("model", formData.model);
     if (formData.file) {
@@ -116,11 +101,9 @@ function AiCover() {
                 'Content-Type': 'multipart/form-data'
             }
         });
-        console.log("data: ",response.data)
-        console.log("res: ",response.blob())
-        setOutputFile(response.data.outputfile);
+      setOutputFile(response.data.outputfile);
     } catch (error) {
-        console.error('Error submitting form:', error);
+      alert(error.response.data.error)
     }
   };
 
@@ -249,8 +232,8 @@ function AiCover() {
                     <Typography variant="overline" sx={{ fontWeight: 'bold' }}>Output File:</Typography>
                   </Box>
                   <Box>
-                    <ReactAudioPlayer src={fileUrl} controls />
-                    <Button variant="contained" color="primary" href={fileUrl} style={{ marginLeft: 40, marginTop: -25 }} download>
+                    <ReactAudioPlayer src={"http://localhost:8000"+outputFile} controls />
+                    <Button variant="contained" color="primary" href={"http://localhost:8000"+outputFile} style={{ marginLeft: 40, marginTop: -25 }} download>
                       Download
                     </Button>
                   </Box>
