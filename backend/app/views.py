@@ -112,7 +112,7 @@ def login(request):
     except User.DoesNotExist:
             return JsonResponse(status=404, data={"error": {"message": "User not found"}})
     except Exception as e:
-        return JsonResponse(status=500, data={"error": {"message": f"{e}"}})
+        return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})
 
 
 @method_decorator(csrf_exempt, name='dispatch')
