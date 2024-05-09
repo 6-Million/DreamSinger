@@ -4,7 +4,7 @@ import { getToken } from "./token";
 // 1. 根域名配置
 const request = axios.create({
   baseURL: "http://localhost:8000/api/v1/", //http://localhost:8000/api/v1/
-  timeout: 5000,
+  timeout: 15000,
 });
 // 添加请求拦截器,请求发送之前做拦截，
 request.interceptors.request.use(

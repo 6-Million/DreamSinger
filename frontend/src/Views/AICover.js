@@ -15,6 +15,7 @@ import {
 import ReactAudioPlayer from "react-audio-player";
 import axios from "axios";
 import Navbar from "../Components/Navbar";
+import {request} from "../utils";
 
 const models = [
   { id: 0, name: "Michael Jackson", imgUrl: 'url("/mj.jpg")' },
@@ -31,21 +32,40 @@ const initialFormData = {
   file: null,
   filename: "",
   // outputfile: "/rolling_ag.mp3",
-  outputfile: "/hey_jude_mj.mp3",
-  //   outputfile: "",
+  // outputfile: "/hey_jude_mj.mp3",
+    outputfile: "",
   imgUrl: "",
 };
 
 function AiCover() {
   const [formData, setFormData] = useState(initialFormData);
-    // const [outputFile, setOutputFile] = useState("");
+    const [outputFile, setOutputFile] = useState("");
   // const [outputFile, setOutputFile] = useState("/rolling_ag.mp3");
-  const [outputFile, setOutputFile] = useState("/hey_jude_mj.mp3");
+  // const [outputFile, setOutputFile] = useState("/hey_jude_mj.mp3");
   const [hoverBgImage, setHoverBgImage] = useState('url("/mj.jpg")');
 
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(0);
   const [showLoading, setShowLoading] = useState(false);
+
+  const [fileUrl, setFileUrl] = useState('');
+
+  useEffect(() => {
+    // 检查outputFile是否存在并且是一个文件对象
+    if (outputFile) {
+      // 创建Blob URL
+      const url = URL.createObjectURL(outputFile);
+      setFileUrl(url);
+
+      // 清理函数，当组件卸载或者outputFile变化时，释放URL
+      return () => URL.revokeObjectURL(url);
+    }
+  }, [outputFile]);
+
+  useEffect(() => {
+    console.log('outputFile has been updated to:', outputFile);
+  }, [outputFile]);
+
 
   useEffect(() => {
     if (showLoading) {
@@ -82,29 +102,26 @@ function AiCover() {
     event.preventDefault();
     setShowLoading(true);
 
-    const url = "https://your-api-url.com/api/upload"; // API
     const data = new FormData();
     data.append("model", formData.model);
-    data.append("path", formData.outputfile);
     if (formData.file) {
       data.append("file", formData.file);
     } else {
       data.append("youtubelink", formData.youtubelink);
     }
 
-    // try {
-    //     const response = await axios.post(url, data, {
-    //         headers: {
-    //             'Content-Type': 'multipart/form-data'
-    //         }
-    //     });
-    //     setOutputFile(response.data.outputfile);
-    // } catch (error) {
-    //     console.error('Error submitting form:', error);
-    // }
-    data.forEach((value, key) => {
-      console.log(`${key}: ${value}`);
-    });
+    try {
+        const response = await request.post("/songs/", data, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        console.log("data: ",response.data)
+        console.log("res: ",response.blob())
+        setOutputFile(response.data.outputfile);
+    } catch (error) {
+        console.error('Error submitting form:', error);
+    }
   };
 
   const handleClear = () => {
@@ -232,8 +249,8 @@ function AiCover() {
                     <Typography variant="overline" sx={{ fontWeight: 'bold' }}>Output File:</Typography>
                   </Box>
                   <Box>
-                    <ReactAudioPlayer src={outputFile} controls />
-                    <Button variant="contained" color="primary" href={outputFile} style={{ marginLeft: 40, marginTop: -25 }} download>
+                    <ReactAudioPlayer src={fileUrl} controls />
+                    <Button variant="contained" color="primary" href={fileUrl} style={{ marginLeft: 40, marginTop: -25 }} download>
                       Download
                     </Button>
                   </Box>
