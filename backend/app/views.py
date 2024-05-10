@@ -7,13 +7,14 @@ from django.conf import settings
 from django.views import View
 from django.http import JsonResponse, FileResponse, Http404
 from django.utils.decorators import method_decorator
+from django.utils.encoding import smart_str
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from .models import User, Song
 from .utils import yttomp3
-# from ..AICoverGen.apis import generate_song
+from ..AICoverGen.apis import generate_song
 
 
 def authentication(request):
@@ -184,6 +185,7 @@ class SongView(View):
         ytURL = request.POST.get('youtubelink')
         file = request.FILES.get('file') # user uploaded song file
 
+
         if ytURL and file:
             return JsonResponse({'error': 'You can only upload a file or provide a YouTube link, not both.'}, status=400)
         if file:
@@ -194,6 +196,7 @@ class SongView(View):
             filename = fs.save(file.name, file)
             songname = os.path.splitext(file.name)[0]
             uploaded_file_url = fs.url(filename)
+
 
             # Generate cover
             cover_song_url = generate_song(uploaded_file_url, model, "..backend/cover/", 0)
@@ -297,3 +300,14 @@ class SongFileView(View):
         song.delete()
         # Return a success response
         return JsonResponse({"message": "This song is deleted"}, status=204)
+
+
+def download_song(request, file_folder, file_name):
+    # Construct the absolute file path to the mp3 file
+    file_path = f'{file_folder}/{file_name}'
+
+    # Set the Content-Disposition header to trigger the file download
+    response = FileResponse(open(file_path, 'rb'), content_type='audio/mpeg')
+    response['Content-Disposition'] = f'attachment; filename="{smart_str(os.path.basename(file_path))}"'
+
+    return response
