@@ -138,3 +138,11 @@ JWT_SECRET_KEY = 'xW9cZ^C!hH8M#v7p$E&A@2gX5dS*3tFqR'
 # CORS configurations
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+# Static file
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, '/'),
+]

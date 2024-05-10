@@ -11,9 +11,6 @@ __pycache__/
 # Ignore static files directory
 /static/
 
-# Ignore media files directory
-/media/
-
 # Ignore IDE files
 .vscode/
 .idea/
