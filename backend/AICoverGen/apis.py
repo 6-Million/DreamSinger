@@ -2,7 +2,27 @@ import os
 import torch
 import argparse
 import json
-from src.main import song_cover_pipeline, preprocess_song, run_mdx, convert_to_stereo, rvc_models_dir, mdxnet_models_dir
+from AICoverGen.src.main import song_cover_pipeline, preprocess_song, run_mdx, convert_to_stereo, rvc_models_dir, mdxnet_models_dir
+
+class deafult_args():
+    def __init__(self):
+        self.keep_files = True
+        self.index_rate = 0.5
+        self.filter_radius = 3
+        self.rms_mix_rate = 0.25
+        self.crepe_hop_length = 128
+        self.pitch_detection_algo = 'rmvpe'
+        self.protect = 0.33
+        self.main_vol = 0
+        self.backup_vol = 0
+        self.inst_vol = 0
+        self.pitch_change_all = 0
+        self.reverb_size = 0.15
+        self.reverb_wetness = 0.2
+        self.reverb_dryness = 0.8
+        self.reverb_damping = 0.7
+        self.output_format = 'mp3'
+
 
 def generate_song(song_input, rvc_dirname, output_path, pitch_change):
     parser = argparse.ArgumentParser(description='Generate a AI cover song in the song_output/id directory.', add_help=True)
@@ -26,7 +46,9 @@ def generate_song(song_input, rvc_dirname, output_path, pitch_change):
     parser.add_argument('-rdry', '--reverb-dryness', type=float, default=0.8, help='Reverb dry level between 0 and 1')
     parser.add_argument('-rdamp', '--reverb-damping', type=float, default=0.7, help='Reverb damping between 0 and 1')
     parser.add_argument('-oformat', '--output-format', type=str, default='mp3', help='Output format of audio file. mp3 for smaller file size, wav for best quality')
-    args = parser.parse_args()
+    #args = parser.parse_args()
+
+    args = deafult_args()
 
     if not os.path.exists(os.path.join(rvc_models_dir, rvc_dirname)):
         raise Exception(f'The folder {os.path.join(rvc_models_dir, rvc_dirname)} does not exist.')

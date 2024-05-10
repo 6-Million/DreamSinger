@@ -13,7 +13,10 @@ from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from .models import User, Song
 from .utils import yttomp3
-from ..AICoverGen.apis import generate_song
+
+import sys
+#sys.path.append("../AI Model/AICoverGen")
+from AICoverGen.apis import generate_song
 
 '''
 Example of using yttomp3 to create a mp3 file in /backend/musics/:
@@ -198,9 +201,10 @@ class SongView(View):
             filename = fs.save(file.name, file)
             songname = os.path.splitext(file.name)[0]
             uploaded_file_url = fs.url(filename)
+            uploaded_file_url = "media/" + uploaded_file_url.split("/")[-1]
 
             # Generate cover
-            cover_song_url = generate_song(uploaded_file_url, model, "..backend/cover/", 0)
+            cover_song_url = generate_song(uploaded_file_url, model, "cover/", 0)
 
             song = Song(user=user, name=songname, model=model, file=cover_song_url)
             song.save()
@@ -210,7 +214,7 @@ class SongView(View):
             file_url, audio_name = yttomp3(ytURL)
 
             # Generate cover
-            cover_song_url = generate_song(file_url, model, "..backend/cover/", 0)
+            cover_song_url = generate_song(file_url, model, "cover/", 0)
 
             song = Song(user=user, name=audio_name, model=model, file=cover_song_url)
             song.save()

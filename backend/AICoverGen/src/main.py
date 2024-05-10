@@ -287,7 +287,7 @@ def song_cover_pipeline(song_input, voice_model, output_path, pitch_change, keep
 
     pitch_change = pitch_change * 12 + pitch_change_all
     ai_vocals_path = os.path.join(output_path, "ai_vocals.wav")
-    ai_cover_path = os.path.join(output_path, "result.wav")
+    ai_cover_path = os.path.join(output_path, f"{song_input.split('/')[-1].split('.')[0]}.wav")
     #ai_vocals_path = os.path.join(song_dir, f'{os.path.splitext(os.path.basename(orig_song_path))[0]}_{voice_model}_p{pitch_change}_i{index_rate}_fr{filter_radius}_rms{rms_mix_rate}_pro{protect}_{f0_method}{"" if f0_method != "mangio-crepe" else f"_{crepe_hop_length}"}.wav')
     #ai_cover_path = os.path.join(song_dir, f'{os.path.splitext(os.path.basename(orig_song_path))[0]} ({voice_model} Ver).{output_format}')
 
