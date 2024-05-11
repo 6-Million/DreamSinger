@@ -231,29 +231,34 @@ class SongView(View):
             return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})
 
     def get(self, request, *args, **kwargs):
-        # Authenticate the user and get their data
-        user_data = authentication(request)
-        # Retrieve the user from the database
-        user = User.objects.get(email=user_data["email"])
-
-        page = request.GET.get('page', 1) # Default page is 1 if not provided
-        num = request.GET.get('num', 10) # Default number of songs per page is 10 if not provided
-
-        # Get all songs for the authenticated user and only the 'id' and 'name' fields
-        songs = Song.objects.filter(user=user).order_by('id').values('id', 'name', 'model')
-        paginator = Paginator(songs, num)  # Create a Paginator object
-
         try:
-            songs = paginator.page(page)  # Get the songs for the requested page
-        except PageNotAnInteger:
-            songs = paginator.page(1)  # If page is not an integer, show first page
-        except EmptyPage:
-            songs = paginator.page(paginator.num_pages)  # If page is out of range, show last page
+            # Authenticate the user and get their data
+            user_data = authentication(request)
+            # Retrieve the user from the database
+            user = User.objects.get(email=user_data["email"])
 
-        # Convert the songs to a list of dictionaries
-        song_list = list(songs)
+            page = request.GET.get('page', 1) # Default page is 1 if not provided
+            num = request.GET.get('num', 10) # Default number of songs per page is 10 if not provided
 
-        return JsonResponse(song_list, safe=False, status=200)
+            # Get all songs for the authenticated user and only the 'id' and 'name' fields
+            songs = Song.objects.filter(user=user).order_by('id').values('id', 'name', 'model')
+            paginator = Paginator(songs, num)  # Create a Paginator object
+
+            try:
+                songs = paginator.page(page)  # Get the songs for the requested page
+            except PageNotAnInteger:
+                songs = paginator.page(1)  # If page is not an integer, show first page
+            except EmptyPage:
+                songs = paginator.page(paginator.num_pages)  # If page is out of range, show last page
+
+            # Convert the songs to a list of dictionaries
+            song_list = list(songs)
+
+            return JsonResponse(song_list, safe=False, status=200)
+        except InvalidSignatureError:
+            return JsonResponse(status=401, data={"error": {"message": "Unauthorized"}})
+        except Exception as e:
+            return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})
     
 
 @method_decorator(csrf_exempt, name='dispatch')

@@ -1,5 +1,4 @@
 from django.test import TestCase, Client
-from django.contrib.auth import get_user_model
 from app.models import User, Song
 import json
 import os
@@ -98,7 +97,6 @@ class ViewsTestCase(TestCase):
         })
 
     def test_get_user_unauthorized(self):
-        response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
         response = self.client.get("/api/v1/users/")
 
         self.assertEqual(response.status_code, 401)
@@ -125,7 +123,6 @@ class ViewsTestCase(TestCase):
         })
 
     def test_put_user_unauthorized(self):
-        response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
         new_data = {
             "gender": 1,
             "age": 30
@@ -219,11 +216,46 @@ class ViewsTestCase(TestCase):
         self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Please provide a file or a YouTube link.")
     
     def test_post_song_unauthorized(self):
-        response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
         song_data = {
             'model': 1,
         }
         response = self.client.post("/api/v1/songs/", song_data)
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Unauthorized")
+
+    def test_get_song_success(self):
+        response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
+        access_token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
+        headers = {'Authorization': f'Bearer {access_token}'}
+        songs_data = [{
+            'model': 1,
+            'youtubelink': 'https://www.youtube.com/watch?v=szGomck3sZI',
+        }, {
+            'model': 1,
+            'youtubelink': 'https://www.youtube.com/watch?v=60ItHLz5WEA',
+        }, {
+            'model': 1,
+            'youtubelink': 'https://www.youtube.com/watch?v=n8X9_MgEdCg',
+        }]
+        for i in range(3):
+            response = self.client.post("/api/v1/songs/", songs_data[i], headers=headers)
+            self.assertEqual(response.status_code, 200)
+        os.remove("media/Love Me Harder (Official Lyric Video).mp3")
+        os.remove("media/Alan Walker - Faded.mp3")
+        os.remove("media/Unity.mp3")
+
+        response = self.client.get('/api/v1/songs/', {'page': 1, 'num': 10}, headers=headers)
+        songs = json.loads(response.content.decode("utf-8"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(songs), 3)
+
+        response = self.client.get('/api/v1/songs/', {'page': 1, 'num': 2}, headers=headers)
+        songs = json.loads(response.content.decode("utf-8"))
+        self.assertLess(len(songs), 3)
+
+    def test_get_song_unauthorized(self):
+        response = self.client.get('/api/v1/songs/', {'page': 1, 'num': 10})
 
         self.assertEqual(response.status_code, 401)
         self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Unauthorized")
