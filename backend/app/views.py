@@ -228,7 +228,7 @@ class SongView(View):
         except InvalidSignatureError:
             return JsonResponse(status=401, data={"error": {"message": "Unauthorized"}})
         except Exception as e:
-            return JsonResponse(status=500, data={"error": {"message": f"{e}"}})
+            return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})
 
     def get(self, request, *args, **kwargs):
         # Authenticate the user and get their data
