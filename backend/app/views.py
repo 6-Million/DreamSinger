@@ -130,7 +130,7 @@ class UserView(View):
             # Retrieve user data from the database
             user = User.objects.get(email=user_data["email"])
 
-            return JsonResponse(status = 200, data = {"data": {
+            return JsonResponse(status = 200, data={"data": {
                 "email": user.email,
                 "username": user.username,
                 "realname": user.realname,
@@ -177,55 +177,56 @@ class UserView(View):
             return JsonResponse(status=401, data={"error": {"message": "Unauthorized"}})
         except Exception as e:
             return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})
-        
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class SongView(View):
     def post(self, request, *args, **kwargs):
-        # Authenticate user
-        user_data = authentication(request)
-        # Retrieve user data from the database
-        user = User.objects.get(email=user_data["email"])
-        model = request.POST.get('model') # user specified voice model
-        ytURL = request.POST.get('youtubelink')
-        file = request.FILES.get('file') # user uploaded song file
+        try:
+            # Authenticate user
+            user_data = authentication(request)
 
+            # Retrieve user data from the database
+            user = User.objects.get(email=user_data["email"])
+            model = request.POST.get('model') # user specified voice model
+            ytURL = request.POST.get('youtubelink')
+            file = request.FILES.get('file') # user uploaded song file
 
-        if ytURL and file:
-            return JsonResponse({'error': 'You can only upload a file or provide a YouTube link, not both.'}, status=400)
-        if file:
+            if ytURL and file:
+                return JsonResponse(status=400, data={'error': 'You can only upload a file or provide a YouTube link, not both.'})
             
-            if not file.name.endswith(('.mp3', '.wav')):
-                return JsonResponse({'error': 'Invalid file format. Only .mp3 and .wav files are allowed.'}, status=400)
-            fs = FileSystemStorage()
-            filename = fs.save(file.name, file)
-            songname = os.path.splitext(file.name)[0]
-            uploaded_file_url = fs.url(filename)
-            uploaded_file_url = "media/" + uploaded_file_url.split("/")[-1]
+            if file:
+                if not file.name.endswith(('.mp3', '.wav')):
+                    return JsonResponse(status=400, data={'error': 'Invalid file format. Only .mp3 and .wav files are allowed.'})
+                fs = FileSystemStorage()
+                filename = fs.save(file.name, file)
+                songname = os.path.splitext(file.name)[0]
+                uploaded_file_url = fs.url(filename)
+                uploaded_file_url = "media/" + uploaded_file_url.split("/")[-1]
 
+                # Generate cover
+                shutil.rmtree("cover/")
+                os.makedirs("cover/")
+                cover_song_url = generate_song(uploaded_file_url, model, "cover/", 0)
+                song = Song(user=user, name=songname, model=model, file=cover_song_url)
+                song.save()
+                return JsonResponse(status=200, data={'data': {'outputfile': cover_song_url}})
+            
+            if ytURL:
+                file_url, audio_name = yttomp3(ytURL)
 
-            # Generate cover
-            import shutil
-            shutil.rmtree("cover/")
-            os.makedirs("cover/")
-            cover_song_url = generate_song(uploaded_file_url, model, "cover/", 0)
+                # Generate cover
+                cover_song_url = generate_song(file_url, model, "cover/", 0)
+                song = Song(user=user, name=audio_name, model=model, file=cover_song_url)
+                song.save()
+                return JsonResponse(status=200, data={'data': {'outputfile': cover_song_url}})
+            
+            return JsonResponse(status=400, data={'error': 'Please provide a file or a YouTube link.'})
+        except InvalidSignatureError:
+            return JsonResponse(status=401, data={"error": {"message": "Unauthorized"}})
+        except Exception as e:
+            return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})
 
-            song = Song(user=user, name=songname, model=model, file=cover_song_url)
-            song.save()
-            return JsonResponse({'data': {'outputfile': cover_song_url}}, status=200)
-        
-        if ytURL:
-            file_url, audio_name = yttomp3(ytURL)
-
-            # Generate cover
-            cover_song_url = generate_song(file_url, model, "cover/", 0)
-
-            song = Song(user=user, name=audio_name, model=model, file=cover_song_url)
-            song.save()
-            return JsonResponse({'data': {'outputfile': cover_song_url}}, status=200)
-        
-        return JsonResponse({'error': 'Please provide a file or a YouTube link.'}, status=400)
-
-    
     def get(self, request, *args, **kwargs):
         # Authenticate the user and get their data
         user_data = authentication(request)
@@ -251,6 +252,7 @@ class SongView(View):
 
         return JsonResponse(song_list, safe=False, status=200)
     
+
 @method_decorator(csrf_exempt, name='dispatch')
 class SongFileView(View):
     def get(self, request, *args, **kwargs):
