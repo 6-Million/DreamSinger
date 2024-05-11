@@ -232,8 +232,8 @@ function AiCover() {
                     <Typography variant="overline" sx={{ fontWeight: 'bold' }}>Output File:</Typography>
                   </Box>
                   <Box>
-                    <ReactAudioPlayer src={"http://localhost:8000"+outputFile} controls />
-                    <Button variant="contained" color="primary" href={"http://localhost:8000/api/v1/download"+outputFile} style={{ marginLeft: 40, marginTop: -25 }} download>
+                    <ReactAudioPlayer src={"http://localhost:8000/"+outputFile} controls />
+                    <Button variant="contained" color="primary" href={"http://localhost:8000/api/v1/download/"+outputFile} style={{ marginLeft: 40, marginTop: -25 }} download>
                       Download
                     </Button>
                   </Box>

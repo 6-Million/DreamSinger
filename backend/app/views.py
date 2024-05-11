@@ -16,6 +16,7 @@ from .models import User, Song
 from .utils import yttomp3
 
 import sys
+import shutil
 #sys.path.append("../AI Model/AICoverGen")
 from AICoverGen.apis import generate_song
 
@@ -203,6 +204,9 @@ class SongView(View):
 
 
             # Generate cover
+            import shutil
+            shutil.rmtree("cover/")
+            os.makedirs("cover/")
             cover_song_url = generate_song(uploaded_file_url, model, "cover/", 0)
 
             song = Song(user=user, name=songname, model=model, file=cover_song_url)
