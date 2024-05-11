@@ -5,7 +5,7 @@ import Navbar from "../Components/Navbar";
 const songs = [
     { id: 1, name: "Song One", model: "Model A" },
     { id: 2, name: "Song Two", model: "Model B" },
-    // 添加更多歌曲
+   
 ];
 
 function Songs() {
@@ -32,7 +32,7 @@ function Songs() {
     };
 
     const handleDelete = (songId) => {
-        // 这里应实现删除逻辑
+       
         console.log("Deleted song with ID:", songId);
     };
 
@@ -69,14 +69,14 @@ function Songs() {
                     <DialogContent>
                         <div>Name: {currentSong.name}</div>
                         <div>Model: {currentSong.model}</div>
-                        {/* 添加播放器和下载按钮 */}
+                        
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleCloseView}>Close</Button>
                     </DialogActions>
                 </Dialog>
 
-                {/* Rename Dialog */}
+               
                 <Dialog open={openRename} onClose={handleCloseRename}>
                     <DialogTitle>Rename Song</DialogTitle>
                     <DialogContent>
