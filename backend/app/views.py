@@ -193,11 +193,11 @@ class SongView(View):
             file = request.FILES.get('file') # user uploaded song file
 
             if ytURL and file:
-                return JsonResponse(status=400, data={'error': 'You can only upload a file or provide a YouTube link, not both.'})
+                return JsonResponse(status=400, data={'error': {"message": "You can only upload a file or provide a YouTube link, not both."}})
             
             if file:
                 if not file.name.endswith(('.mp3', '.wav')):
-                    return JsonResponse(status=400, data={'error': 'Invalid file format. Only .mp3 and .wav files are allowed.'})
+                    return JsonResponse(status=400, data={'error': {"message": "Invalid file format. Only .mp3 and .wav files are allowed."}})
                 fs = FileSystemStorage()
                 filename = fs.save(file.name, file)
                 songname = os.path.splitext(file.name)[0]
@@ -213,19 +213,22 @@ class SongView(View):
                 return JsonResponse(status=200, data={'data': {'outputfile': cover_song_url}})
             
             if ytURL:
-                file_url, audio_name = yttomp3(ytURL)
-
+                try:
+                    file_url, audio_name = yttomp3(ytURL)
+                except:
+                    return JsonResponse(status=400, data={"error": {"message": "YouTube link unavailable"}})
+                
                 # Generate cover
                 cover_song_url = generate_song(file_url, model, "cover/", 0)
                 song = Song(user=user, name=audio_name, model=model, file=cover_song_url)
                 song.save()
                 return JsonResponse(status=200, data={'data': {'outputfile': cover_song_url}})
             
-            return JsonResponse(status=400, data={'error': 'Please provide a file or a YouTube link.'})
+            return JsonResponse(status=400, data={'error': {"message": "Please provide a file or a YouTube link."}})
         except InvalidSignatureError:
             return JsonResponse(status=401, data={"error": {"message": "Unauthorized"}})
         except Exception as e:
-            return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})
+            return JsonResponse(status=500, data={"error": {"message": f"{e}"}})
 
     def get(self, request, *args, **kwargs):
         # Authenticate the user and get their data

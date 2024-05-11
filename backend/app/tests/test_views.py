@@ -1,7 +1,9 @@
 from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
-from app.models import User
+from app.models import User, Song
 import json
+import os
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 class ViewsTestCase(TestCase):
     def setUp(self):
@@ -133,4 +135,95 @@ class ViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Unauthorized")
         
+    def test_post_song_with_file_success(self):
+        response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
+        access_token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
+        headers = {'Authorization': f'Bearer {access_token}'}
+        file = SimpleUploadedFile('test_song.mp3', content=b'Simulated MP3 file content', content_type='audio/mpeg')
+        song_data = {
+            'model': 1,
+            'file': file,
+        }
+
+        response = self.client.post("/api/v1/songs/", song_data, headers=headers, format='multipart')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("outputfile", json.loads(response.content.decode("utf-8"))["data"])
+        os.remove("media/test_song.mp3")
     
+    def test_post_song_with_file_invalid_format(self):
+        response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
+        access_token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
+        headers = {'Authorization': f'Bearer {access_token}'}
+        file = SimpleUploadedFile('test_song.txt', content=b'Simulated MP3 file content', content_type='audio/mpeg')
+        song_data = {
+            'model': 1,
+            'file': file,
+        }
+
+        response = self.client.post("/api/v1/songs/", song_data, headers=headers, format='multipart')
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Invalid file format. Only .mp3 and .wav files are allowed.")
+
+    def test_post_song_with_yt_link_success(self):
+        response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
+        access_token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
+        headers = {'Authorization': f'Bearer {access_token}'}
+        song_data = {
+            'model': 1,
+            'youtubelink': 'https://www.youtube.com/watch?v=szGomck3sZI',
+        }
+
+        response = self.client.post("/api/v1/songs/", song_data, headers=headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("outputfile", json.loads(response.content.decode("utf-8"))["data"])
+        os.remove("media/Love Me Harder (Official Lyric Video).mp3")
+    
+    def test_post_song_with_invalid_yt_link(self):
+        response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
+        access_token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
+        headers = {'Authorization': f'Bearer {access_token}'}
+        song_data = {
+            'model': 1,
+            'youtubelink': 'https://www.youtube.com/watch?v=szGomck3sZ1',
+        }
+
+        response = self.client.post("/api/v1/songs/", song_data, headers=headers)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "YouTube link unavailable")
+    
+    def test_post_song_with_two_methods(self):
+        response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
+        access_token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
+        headers = {'Authorization': f'Bearer {access_token}'}
+        file = SimpleUploadedFile('test_song.mp3', content=b'Simulated MP3 file content', content_type='audio/mpeg')
+        song_data = {
+            'model': 1,
+            'youtubelink': 'https://www.youtube.com/watch?v=szGomck3sZ1',
+            'file': file,
+        }
+
+        response = self.client.post("/api/v1/songs/", song_data, headers=headers, format='multipart')
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "You can only upload a file or provide a YouTube link, not both.")
+    
+    def test_post_song_without_any_method(self):
+        response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
+        access_token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
+        headers = {'Authorization': f'Bearer {access_token}'}
+        song_data = {
+            'model': 1,
+        }
+
+        response = self.client.post("/api/v1/songs/", song_data, headers=headers)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Please provide a file or a YouTube link.")
+    
+    def test_post_song_unauthorized(self):
+        response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
+        song_data = {
+            'model': 1,
+        }
+        response = self.client.post("/api/v1/songs/", song_data)
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Unauthorized")
