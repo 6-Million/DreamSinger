@@ -17,7 +17,6 @@ class ViewsTestCase(TestCase):
         }
 
     def test_signup_success(self):
-        # Test signup endpoint
         response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
         self.assertEqual(response.status_code, 200)
         self.assertIn("access_token", json.loads(response.content.decode("utf-8"))["data"])
@@ -38,3 +37,46 @@ class ViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertTrue(json.loads(response.content.decode("utf-8"))["error"]["message"].startswith("Missing required fields: "))
 
+    def test_login_success(self):
+        login_data = {
+            "email": self.user_data["email"],
+            "password": self.user_data["password"]
+        }
+
+        response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
+        response = self.client.post("/api/v1/users/login/", json.dumps(login_data), content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("access_token", json.loads(response.content.decode("utf-8"))["data"])
+    
+    def test_login_missing_required_fields(self):
+        login_data = {
+            "email": self.user_data["email"],
+        }
+
+        response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
+        response = self.client.post("/api/v1/users/login/", json.dumps(login_data), content_type="application/json")
+        self.assertEqual(response.status_code, 400)
+        self.assertTrue(json.loads(response.content.decode("utf-8"))["error"]["message"].startswith("Missing required fields: "))
+
+    def test_login_incorrect_password(self):
+        login_data = {
+            "email": self.user_data["email"],
+            "password": "error"
+        }
+
+        response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
+        response = self.client.post("/api/v1/users/login/", json.dumps(login_data), content_type="application/json")
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Incorrect password")
+    
+    def test_login_nonexistent_user(self):
+        login_data = {
+            "email": "error",
+            "password": self.user_data["password"]
+        }
+
+        response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
+        response = self.client.post("/api/v1/users/login/", json.dumps(login_data), content_type="application/json")
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "User not found")
+    
