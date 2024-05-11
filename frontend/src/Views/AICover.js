@@ -60,7 +60,7 @@ function AiCover() {
         setTimer(prevTimer => prevTimer + 1);
       }, 1000);
 
-      // 清理定时器
+    
       return () => clearInterval(intervalId);
     }
   }, [showLoading]);
@@ -73,12 +73,12 @@ function AiCover() {
   };
 
   const handleFileChange = (event) => {
-    const file = event.target.files[0]; // 获取文件对象
+    const file = event.target.files[0]; 
     if (file) {
       setFormData((prevState) => ({
         ...prevState,
         file: file,
-        filename: file.name, // 保存文件名
+        filename: file.name, 
       }));
     }
     console.log("File:", file.name);
@@ -109,8 +109,8 @@ function AiCover() {
 
   const handleClear = () => {
     setFormData({
-      ...initialFormData, // 使用扩展运算符来复制初始表单数据
-      file: null, // 明确将 file 设置为 null
+      ...initialFormData, 
+      file: null, 
     });
     setOutputFile("");
     setShowLoading(false);
@@ -143,7 +143,7 @@ function AiCover() {
       </div>
       <Container style={{
             ...boxStyle,
-            marginBottom: outputFile ? '57px' : showLoading ? '90px' : '130px'  // 当outputFile存在时底部边距更大
+            marginBottom: outputFile ? '57px' : showLoading ? '90px' : '130px'  
           }}
         sx={{
           mt: 3,
