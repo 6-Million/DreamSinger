@@ -18,7 +18,7 @@ from .utils import yttomp3
 import sys
 import shutil
 #sys.path.append("../AI Model/AICoverGen")
-# from AICoverGen.apis import generate_song
+from AICoverGen.apis import generate_song
 
 
 def authentication(request):
@@ -207,8 +207,7 @@ class SongView(View):
                 # Generate cover
                 shutil.rmtree("cover/")
                 os.makedirs("cover/")
-                # cover_song_url = generate_song(uploaded_file_url, model, "cover/", 0)
-                cover_song_url="cover/Love Me Harder (Official Lyric Video).mp3"  
+                cover_song_url = generate_song(uploaded_file_url, model, "cover/", 0)
                 song = Song(user=user, name=songname, model=model, file=cover_song_url)
                 song.save()
                 return JsonResponse(status=200, data={'data': {'outputfile': cover_song_url}})
@@ -220,8 +219,7 @@ class SongView(View):
                     return JsonResponse(status=400, data={"error": {"message": "YouTube link unavailable"}})
                 
                 # Generate cover
-                # cover_song_url = generate_song(file_url, model, "cover/", 0)
-                cover_song_url="cover/Love Me Harder (Official Lyric Video).mp3"  
+                cover_song_url = generate_song(file_url, model, "cover/", 0)
                 song = Song(user=user, name=audio_name, model=model, file=cover_song_url)
                 song.save()
                 return JsonResponse(status=200, data={'data': {'outputfile': cover_song_url}})
