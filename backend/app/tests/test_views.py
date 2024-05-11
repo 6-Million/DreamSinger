@@ -20,7 +20,6 @@ class ViewsTestCase(TestCase):
         response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
         self.assertEqual(response.status_code, 200)
         self.assertIn("access_token", json.loads(response.content.decode("utf-8"))["data"])
-        self.token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
 
     def test_signup_email_exists(self):
         response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
@@ -79,4 +78,59 @@ class ViewsTestCase(TestCase):
         response = self.client.post("/api/v1/users/login/", json.dumps(login_data), content_type="application/json")
         self.assertEqual(response.status_code, 404)
         self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "User not found")
+
+    def test_get_user_success(self):
+        response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
+        access_token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
+        headers = {'Authorization': f'Bearer {access_token}'}
+        response = self.client.get("/api/v1/users/", headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(response.content.decode("utf-8"))["data"], {
+            "email": self.user_data["email"],
+            "username": self.user_data["username"],
+            "realname": self.user_data["realname"],
+            "gender": self.user_data["gender"],
+            "age": self.user_data["age"],
+            "phone": self.user_data["phone"]
+        })
+
+    def test_get_user_unauthorized(self):
+        response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
+        response = self.client.get("/api/v1/users/")
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Unauthorized")
+    
+    def test_put_user_success(self):
+        response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
+        access_token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
+        headers = {'Authorization': f'Bearer {access_token}'}
+        new_data = {
+            "gender": 1,
+            "age": 30
+        }
+        response = self.client.put("/api/v1/users/", json.dumps(new_data), content_type="application/json", headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(response.content.decode("utf-8"))["data"], {
+            "email": self.user_data["email"],
+            "username": self.user_data["username"],
+            "realname": self.user_data["realname"],
+            "gender": new_data["gender"],
+            "age": new_data["age"],
+            "phone": self.user_data["phone"]
+        })
+
+    def test_put_user_unauthorized(self):
+        response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
+        new_data = {
+            "gender": 1,
+            "age": 30
+        }
+        response = self.client.put("/api/v1/users/", json.dumps(new_data), content_type="application/json")
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Unauthorized")
+        
     
