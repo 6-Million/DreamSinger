@@ -264,27 +264,32 @@ class SongView(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class SongFileView(View):
     def get(self, request, *args, **kwargs):
-        # Authenticate the user and get their data
-        user_data = authentication(request)
-        # Retrieve the user from the database
-        user = User.objects.get(email=user_data["email"])
-        # Retrieve the song ID from the URL
-        song_id = request.GET.get('id')
         try:
-            # Retrieve the song from the database
-            song = Song.objects.get(user=user, id=song_id)
-        except Song.DoesNotExist:
-            raise Http404("Song does not exist")
-
-        # Create a FileResponse object with the song file
-        # response = FileResponse(open(song.file.path, 'rb'))
-        # return response
-        # Create a dictionary with the file URL, song name and the model
-        return JsonResponse({
-            "file": song.file.url,
-            "name": song.name,
-            "model": song.model
-        }, status=200)
+            # Authenticate the user and get their data
+            user_data = authentication(request)
+            # Retrieve the user from the database
+            user = User.objects.get(email=user_data["email"])
+            # Retrieve the song ID from the URL
+            song_id = request.GET.get('id')
+            try:
+                # Retrieve the song from the database
+                song = Song.objects.get(user=user, id=song_id)
+            except Song.DoesNotExist:
+                return JsonResponse(status=400, data={"error": {"message": "Song does not exist"}})
+            
+            # Create a FileResponse object with the song file
+            # response = FileResponse(open(song.file.path, 'rb'))
+            # return response
+            # Create a dictionary with the file URL, song name and the model
+            return JsonResponse({
+                "file": song.file.url,
+                "name": song.name,
+                "model": song.model
+            }, status=200)
+        except InvalidSignatureError:
+            return JsonResponse(status=401, data={"error": {"message": "Unauthorized"}})
+        except Exception as e:
+            return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})
     
     def put(self, request, *args, **kwargs): # Change the name of the song file
         # Authenticate the user and get their data
