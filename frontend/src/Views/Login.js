@@ -21,7 +21,7 @@ function LogInPage() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    errors: { email: "", password: "" }, // 添加用于跟踪错误的字段
+    errors: { email: "", password: "" }, 
   });
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -72,20 +72,20 @@ function LogInPage() {
             email: formData.email,
             password: formData.password,
           })
-        ); // 使用unwrap来处理Redux Toolkit的异步Thunk
+        );
 
-        console.log("Login Response:", response); // 日志输出查看响应内容
+        console.log("Login Response:", response); 
 
-        // 假设后端返回的是这种格式 { data: { access_token: 'token_here' } }
+      
         console.log(token);
         console.log("-------");
 
         if (token !== "") {
           setSnackbarMessage("Login successfully!");
           setSnackbarSeverity("success");
-          setOpenSnackbar(true); // 显示Snackbar
+          setOpenSnackbar(true); 
           // alert("login success!!")
-          navigate("/"); // 登录成功后跳转
+          navigate("/"); 
         } else {
           setSnackbarMessage("Email or Password is incorrect!");
           setSnackbarSeverity("error");
