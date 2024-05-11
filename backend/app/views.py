@@ -18,7 +18,7 @@ from .utils import yttomp3
 import sys
 import shutil
 #sys.path.append("../AI Model/AICoverGen")
-from AICoverGen.apis import generate_song
+# from AICoverGen.apis import generate_song
 
 
 def authentication(request):
@@ -207,7 +207,8 @@ class SongView(View):
                 # Generate cover
                 shutil.rmtree("cover/")
                 os.makedirs("cover/")
-                cover_song_url = generate_song(uploaded_file_url, model, "cover/", 0)
+                # cover_song_url = generate_song(uploaded_file_url, model, "cover/", 0)
+                cover_song_url="cover/Love Me Harder (Official Lyric Video).mp3"  
                 song = Song(user=user, name=songname, model=model, file=cover_song_url)
                 song.save()
                 return JsonResponse(status=200, data={'data': {'outputfile': cover_song_url}})
@@ -219,7 +220,8 @@ class SongView(View):
                     return JsonResponse(status=400, data={"error": {"message": "YouTube link unavailable"}})
                 
                 # Generate cover
-                cover_song_url = generate_song(file_url, model, "cover/", 0)
+                # cover_song_url = generate_song(file_url, model, "cover/", 0)
+                cover_song_url="cover/Love Me Harder (Official Lyric Video).mp3"  
                 song = Song(user=user, name=audio_name, model=model, file=cover_song_url)
                 song.save()
                 return JsonResponse(status=200, data={'data': {'outputfile': cover_song_url}})
@@ -300,7 +302,10 @@ class SongFileView(View):
             # Retrieve the song ID from the URL
             song_id = request.GET.get('id')
             # Retrieve the song from the database
-            song = Song.objects.get(user=user, id=song_id)
+            try:
+                song = Song.objects.get(user=user, id=song_id)
+            except Song.DoesNotExist:
+                return JsonResponse(status=400, data={"error": {"message": "Song does not exist"}})
             # Extract the new name from the request
             new_name = json.loads(request.body)["name"]
             # Update the song name
@@ -316,26 +321,39 @@ class SongFileView(View):
 
     
     def delete(self, request, *args, **kwargs):
-        # Authenticate the user and get their data
-        user_data = authentication(request)
-        # Retrieve the user from the database
-        user = User.objects.get(email=user_data["email"])
-        # Retrieve the song ID from the URL
-        song_id = request.GET.get('id')
-        # Retrieve the song from the database
-        song = Song.objects.get(user=user, id=song_id)
-        # Delete the song from the database
-        song.delete()
-        # Return a success response
-        return JsonResponse({"message": "This song is deleted"}, status=204)
+        try:
+            # Authenticate the user and get their data
+            user_data = authentication(request)
+            # Retrieve the user from the database
+            user = User.objects.get(email=user_data["email"])
+            # Retrieve the song ID from the URL
+            song_id = request.GET.get('id')
+            # Retrieve the song from the database
+            try:
+                song = Song.objects.get(user=user, id=song_id)
+            except Song.DoesNotExist:
+                return JsonResponse(status=400, data={"error": {"message": "Song does not exist"}})
+            # Delete the song from the database
+            song.delete()
+            # Return a success response
+            return JsonResponse(status=200, data={"message": "This song is deleted"})
+        except InvalidSignatureError:
+            return JsonResponse(status=401, data={"error": {"message": "Unauthorized"}})
+        except Exception as e:
+            return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})
 
 
 def download_song(request, file_folder, file_name):
-    # Construct the absolute file path to the mp3 file
-    file_path = f'{file_folder}/{file_name}'
+    try:
+        # Construct the absolute file path to the mp3 file
+        file_path = f'{file_folder}/{file_name}'
 
-    # Set the Content-Disposition header to trigger the file download
-    response = FileResponse(open(file_path, 'rb'), content_type='audio/mpeg')
-    response['Content-Disposition'] = f'attachment; filename="{smart_str(os.path.basename(file_path))}"'
+        # Set the Content-Disposition header to trigger the file download
+        response = FileResponse(open(file_path, 'rb'), content_type='audio/mpeg')
+        response['Content-Disposition'] = f'attachment; filename="{smart_str(os.path.basename(file_path))}"'
 
-    return response
+        return response
+    except InvalidSignatureError:
+        return JsonResponse(status=401, data={"error": {"message": "Unauthorized"}})
+    except Exception as e:
+        return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})
