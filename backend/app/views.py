@@ -211,7 +211,7 @@ class SongView(View):
                 song = Song(user=user, name=songname, model=model, file=cover_song_url)
                 song.save()
                 return JsonResponse(status=200, data={'data': {'outputfile': cover_song_url}})
-            
+       
             if ytURL:
                 try:
                     file_url, audio_name = yttomp3(ytURL)
@@ -292,22 +292,27 @@ class SongFileView(View):
             return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})
     
     def put(self, request, *args, **kwargs): # Change the name of the song file
-        # Authenticate the user and get their data
-        user_data = authentication(request)
-        # Retrieve the user from the database
-        user = User.objects.get(email=user_data["email"])
-        # Retrieve the song ID from the URL
-        song_id = request.GET.get('id')
-        # Retrieve the song from the database
-        song = Song.objects.get(user=user, id=song_id)
-        # Extract the new name from the request
-        new_name = json.loads(request.body)["name"]
-        # Update the song name
-        song.name = new_name
-        # Save the changes to the database
-        song.save()
-        # Return a success response
-        return JsonResponse({"message": "Name of the song is changed"}, status=200)
+        try:
+            # Authenticate the user and get their data
+            user_data = authentication(request)
+            # Retrieve the user from the database
+            user = User.objects.get(email=user_data["email"])
+            # Retrieve the song ID from the URL
+            song_id = request.GET.get('id')
+            # Retrieve the song from the database
+            song = Song.objects.get(user=user, id=song_id)
+            # Extract the new name from the request
+            new_name = json.loads(request.body)["name"]
+            # Update the song name
+            song.name = new_name
+            # Save the changes to the database
+            song.save()
+            # Return a success response
+            return JsonResponse(status=200, data={"message": "Name of the song is changed"})
+        except InvalidSignatureError:
+            return JsonResponse(status=401, data={"error": {"message": "Unauthorized"}})
+        except Exception as e:
+            return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})
 
     
     def delete(self, request, *args, **kwargs):
