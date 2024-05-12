@@ -33,9 +33,17 @@ It is recommended to have Python 3.9 and CUDA installed on your computer.
 3. Download the pretrain RVC checkpoints and unzip them into `backend/AICoverGen/rvc_models`:
     - https://huggingface.co/PlayerBPlaytime/My-Models/resolve/main/MJInvincibleEra.zip
     - https://huggingface.co/coreliastreet/arianagrande2024/resolve/main/eternal.zip?download=true
+    - https://huggingface.co/orcungok20/freddie86-88/resolve/main/freddieSpecial_440Epoch.zip?download=true
+    - https://huggingface.co/szymixsiorek/RVC-Models/resolve/main/taylorredv2.zip?download=true
+    - https://huggingface.co/Florstie/Kurt_Cobain_byFlorst/resolve/main/Kurt_Florst.zip?download=true
+    - https://huggingface.co/Bilious/30Adele250/resolve/main/30Adele.zip?download=true
 4. Rename the folders as follows:
     - `MJInvincibleEra` to `0`
     - `eternal` to `1`
+    - `freddieSpecial_440Epoch` to `2`
+    - `taylorredv2` to `3`
+    - `Kurt_Florst` to `4`
+    - `30Adele` to `5`
 5. Install required packages and setup environment for backend:
     ```
     cd backend
