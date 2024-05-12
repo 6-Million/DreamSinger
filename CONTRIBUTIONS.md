@@ -27,5 +27,8 @@ This file documents each team member's contributions to the project.
 - Wrote the project API documentation.
 
 ## Yuefeng Zhang (@Lucoin-yf)
+- Complete the front-end login and registration information correct reminder and interaction with the back-end
+- Implement an interceptor module that authenticates and adds tokens before the user sends a request
+- Implement AuthRoute, if there is no token jump login interface
+- Implement front-end personal information interface view and edit interface, as well as notfound interface
 
-- 
