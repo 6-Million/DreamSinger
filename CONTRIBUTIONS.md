@@ -11,7 +11,9 @@ This file documents each team member's contributions to the project.
 
 ## Cindy Chen (@liangyu0516)
 
-- 
+- Developed backend APIs for signup, login, user management, and file downloading.
+- Wrote unit tests for backend server.
+- Wrote the project README and API documentation.
 
 ## Xiaowen Qiu (@Xiaowen)
 
