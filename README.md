@@ -1,7 +1,12 @@
 # DreamSinger
 
 ## Introduction
+
 DreamSinger is a web application that enables users to generate covered songs using the open-source project [AICoverGen](https://github.com/SociallyIneptWeeb/AICoverGen).
+
+## Features Demo Video
+
+The features demo video is provided [here](https://drive.google.com/file/d/1J9O2HuokkDFKqkp9WnPjT7rKUYb5Cona/view?usp=drive_link).
 
 ## Installation Instructions
 

@@ -4,10 +4,10 @@ This file documents each team member's contributions to the project.
 
 ## Bowen Liu (@6-Million)
 
-- Design and implement **AI Song Cover Page** static view, frontend functions, and relevant frontend API request.
-- Design and implement **My Songs History Page** static view, frontend functions, and relevant frontend API request.
-- Design and implement **Navigation Bar** static view, navigations between pages, and Logout function.
-- Demo Video record.
+- Designed and implemented **AI Song Cover Page** static view, frontend functions, and relevant frontend API request.
+- Designed and implemented **My Songs History Page** static view, frontend functions, and relevant frontend API request.
+- Designed and implemented **Navigation Bar** static view, navigations between pages, and Logout function.
+- Recorded Demo Video.
 
 ## Cindy Chen (@liangyu0516)
 
