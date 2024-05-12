@@ -270,7 +270,7 @@ class SongFileView(View):
             # Retrieve the user from the database
             user = User.objects.get(email=user_data["email"])
             # Retrieve the song ID from the URL
-            song_id = request.GET.get('id')
+            song_id = kwargs.get('id')
             try:
                 # Retrieve the song from the database
                 song = Song.objects.get(user=user, id=song_id)
@@ -298,7 +298,7 @@ class SongFileView(View):
             # Retrieve the user from the database
             user = User.objects.get(email=user_data["email"])
             # Retrieve the song ID from the URL
-            song_id = request.GET.get('id')
+            song_id = kwargs.get('id')
             # Retrieve the song from the database
             try:
                 song = Song.objects.get(user=user, id=song_id)
@@ -325,7 +325,7 @@ class SongFileView(View):
             # Retrieve the user from the database
             user = User.objects.get(email=user_data["email"])
             # Retrieve the song ID from the URL
-            song_id = request.GET.get('id')
+            song_id = kwargs.get('id')
             # Retrieve the song from the database
             try:
                 song = Song.objects.get(user=user, id=song_id)
