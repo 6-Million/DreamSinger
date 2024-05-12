@@ -16,6 +16,7 @@ from .models import User, Song
 from .utils import yttomp3
 
 import sys
+import shutil
 #sys.path.append("../AI Model/AICoverGen")
 from AICoverGen.apis import generate_song
 
@@ -129,7 +130,7 @@ class UserView(View):
             # Retrieve user data from the database
             user = User.objects.get(email=user_data["email"])
 
-            return JsonResponse(status = 200, data = {"data": {
+            return JsonResponse(status = 200, data={"data": {
                 "email": user.email,
                 "username": user.username,
                 "realname": user.realname,
@@ -176,142 +177,181 @@ class UserView(View):
             return JsonResponse(status=401, data={"error": {"message": "Unauthorized"}})
         except Exception as e:
             return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})
-        
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class SongView(View):
     def post(self, request, *args, **kwargs):
-        # Authenticate user
-        user_data = authentication(request)
-        # Retrieve user data from the database
-        user = User.objects.get(email=user_data["email"])
-        model = request.POST.get('model') # user specified voice model
-        ytURL = request.POST.get('youtubelink')
-        file = request.FILES.get('file') # user uploaded song file
-
-
-        if ytURL and file:
-            return JsonResponse({'error': 'You can only upload a file or provide a YouTube link, not both.'}, status=400)
-        if file:
-            
-            if not file.name.endswith(('.mp3', '.wav')):
-                return JsonResponse({'error': 'Invalid file format. Only .mp3 and .wav files are allowed.'}, status=400)
-            fs = FileSystemStorage()
-            filename = fs.save(file.name, file)
-            songname = os.path.splitext(file.name)[0]
-            uploaded_file_url = fs.url(filename)
-            uploaded_file_url = "media/" + uploaded_file_url.split("/")[-1]
-
-
-            # Generate cover
-            cover_song_url = generate_song(uploaded_file_url, model, "cover/", 0)
-
-            song = Song(user=user, name=songname, model=model, file=cover_song_url)
-            song.save()
-            return JsonResponse({'data': {'outputfile': cover_song_url}}, status=200)
-        
-        if ytURL:
-            file_url, audio_name = yttomp3(ytURL)
-
-            # Generate cover
-            cover_song_url = generate_song(file_url, model, "cover/", 0)
-
-            song = Song(user=user, name=audio_name, model=model, file=cover_song_url)
-            song.save()
-            return JsonResponse({'data': {'outputfile': cover_song_url}}, status=200)
-        
-        return JsonResponse({'error': 'Please provide a file or a YouTube link.'}, status=400)
-
-    
-    def get(self, request, *args, **kwargs):
-        # Authenticate the user and get their data
-        user_data = authentication(request)
-        # Retrieve the user from the database
-        user = User.objects.get(email=user_data["email"])
-
-        page = request.GET.get('page', 1) # Default page is 1 if not provided
-        num = request.GET.get('num', 10) # Default number of songs per page is 10 if not provided
-
-        # Get all songs for the authenticated user and only the 'id' and 'name' fields
-        songs = Song.objects.filter(user=user).order_by('id').values('id', 'name', 'model', 'file')
-        paginator = Paginator(songs, num)  # Create a Paginator object
-
         try:
-            songs = paginator.page(page)  # Get the songs for the requested page
-        except PageNotAnInteger:
-            songs = paginator.page(1)  # If page is not an integer, show first page
-        except EmptyPage:
-            songs = paginator.page(paginator.num_pages)  # If page is out of range, show last page
+            # Authenticate user
+            user_data = authentication(request)
 
-        # Convert the songs to a list of dictionaries
-        song_list = list(songs)
+            # Retrieve user data from the database
+            user = User.objects.get(email=user_data["email"])
+            model = request.POST.get('model') # user specified voice model
+            ytURL = request.POST.get('youtubelink')
+            file = request.FILES.get('file') # user uploaded song file
 
-        return JsonResponse(song_list, safe=False, status=200)
+            if ytURL and file:
+                return JsonResponse(status=400, data={'error': {"message": "You can only upload a file or provide a YouTube link, not both."}})
+            
+            if file:
+                if not file.name.endswith(('.mp3', '.wav')):
+                    return JsonResponse(status=400, data={'error': {"message": "Invalid file format. Only .mp3 and .wav files are allowed."}})
+                fs = FileSystemStorage()
+                filename = fs.save(file.name, file)
+                songname = os.path.splitext(file.name)[0]
+                uploaded_file_url = fs.url(filename)
+                uploaded_file_url = "media/" + uploaded_file_url.split("/")[-1]
+
+                # Generate cover
+                shutil.rmtree("cover/")
+                os.makedirs("cover/")
+                cover_song_url = generate_song(uploaded_file_url, model, "cover/", 0)
+                song = Song(user=user, name=songname, model=model, file=cover_song_url)
+                song.save()
+                return JsonResponse(status=200, data={'data': {'outputfile': cover_song_url}})
+       
+            if ytURL:
+                try:
+                    file_url, audio_name = yttomp3(ytURL)
+                except:
+                    return JsonResponse(status=400, data={"error": {"message": "YouTube link unavailable"}})
+                
+                # Generate cover
+                cover_song_url = generate_song(file_url, model, "cover/", 0)
+                song = Song(user=user, name=audio_name, model=model, file=cover_song_url)
+                song.save()
+                return JsonResponse(status=200, data={'data': {'outputfile': cover_song_url}})
+            
+            return JsonResponse(status=400, data={'error': {"message": "Please provide a file or a YouTube link."}})
+        except InvalidSignatureError:
+            return JsonResponse(status=401, data={"error": {"message": "Unauthorized"}})
+        except Exception as e:
+            return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})
+
+    def get(self, request, *args, **kwargs):
+        try:
+            # Authenticate the user and get their data
+            user_data = authentication(request)
+            # Retrieve the user from the database
+            user = User.objects.get(email=user_data["email"])
+
+            page = request.GET.get('page', 1) # Default page is 1 if not provided
+            num = request.GET.get('num', 10) # Default number of songs per page is 10 if not provided
+
+            # Get all songs for the authenticated user and only the 'id' and 'name' fields
+            songs = Song.objects.filter(user=user).order_by('id').values('id', 'name', 'model')
+            paginator = Paginator(songs, num)  # Create a Paginator object
+
+            try:
+                songs = paginator.page(page)  # Get the songs for the requested page
+            except PageNotAnInteger:
+                songs = paginator.page(1)  # If page is not an integer, show first page
+            except EmptyPage:
+                songs = paginator.page(paginator.num_pages)  # If page is out of range, show last page
+
+            # Convert the songs to a list of dictionaries
+            song_list = list(songs)
+
+            return JsonResponse(song_list, safe=False, status=200)
+        except InvalidSignatureError:
+            return JsonResponse(status=401, data={"error": {"message": "Unauthorized"}})
+        except Exception as e:
+            return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})
     
+
 @method_decorator(csrf_exempt, name='dispatch')
 class SongFileView(View):
     def get(self, request, *args, **kwargs):
-        # Authenticate the user and get their data
-        user_data = authentication(request)
-        # Retrieve the user from the database
-        user = User.objects.get(email=user_data["email"])
-        # Retrieve the song ID from the URL
-        song_id = kwargs.get('id')
         try:
-            # Retrieve the song from the database
-            song = Song.objects.get(user=user, id=song_id)
-        except Song.DoesNotExist:
-            raise Http404("Song does not exist")
-
-        # Create a FileResponse object with the song file
-        # response = FileResponse(open(song.file.path, 'rb'))
-        # return response
-        # Create a dictionary with the file URL, song name and the model
-        return JsonResponse({
-            "file": song.file.url,
-            "name": song.name,
-            "model": song.model
-        }, status=200)
+            # Authenticate the user and get their data
+            user_data = authentication(request)
+            # Retrieve the user from the database
+            user = User.objects.get(email=user_data["email"])
+            # Retrieve the song ID from the URL
+            song_id = kwargs.get('id')
+            try:
+                # Retrieve the song from the database
+                song = Song.objects.get(user=user, id=song_id)
+            except Song.DoesNotExist:
+                return JsonResponse(status=400, data={"error": {"message": "Song does not exist"}})
+            
+            # Create a FileResponse object with the song file
+            # response = FileResponse(open(song.file.path, 'rb'))
+            # return response
+            # Create a dictionary with the file URL, song name and the model
+            return JsonResponse({
+                "file": song.file.url,
+                "name": song.name,
+                "model": song.model
+            }, status=200)
+        except InvalidSignatureError:
+            return JsonResponse(status=401, data={"error": {"message": "Unauthorized"}})
+        except Exception as e:
+            return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})
     
     def put(self, request, *args, **kwargs): # Change the name of the song file
-        # Authenticate the user and get their data
-        user_data = authentication(request)
-        # Retrieve the user from the database
-        user = User.objects.get(email=user_data["email"])
-        # Retrieve the song ID from the URL
-        song_id = kwargs.get('id')
-        # Retrieve the song from the database
-        song = Song.objects.get(user=user, id=song_id)
-        # Extract the new name from the request
-        new_name = json.loads(request.body)["name"]
-        # Update the song name
-        song.name = new_name
-        # Save the changes to the database
-        song.save()
-        # Return a success response
-        return JsonResponse({"message": "Name of the song is changed"}, status=200)
+        try:
+            # Authenticate the user and get their data
+            user_data = authentication(request)
+            # Retrieve the user from the database
+            user = User.objects.get(email=user_data["email"])
+            # Retrieve the song ID from the URL
+            song_id = kwargs.get('id')
+            # Retrieve the song from the database
+            try:
+                song = Song.objects.get(user=user, id=song_id)
+            except Song.DoesNotExist:
+                return JsonResponse(status=400, data={"error": {"message": "Song does not exist"}})
+            # Extract the new name from the request
+            new_name = json.loads(request.body)["name"]
+            # Update the song name
+            song.name = new_name
+            # Save the changes to the database
+            song.save()
+            # Return a success response
+            return JsonResponse(status=200, data={"message": "Name of the song is changed"})
+        except InvalidSignatureError:
+            return JsonResponse(status=401, data={"error": {"message": "Unauthorized"}})
+        except Exception as e:
+            return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})
 
     
     def delete(self, request, *args, **kwargs):
-        # Authenticate the user and get their data
-        user_data = authentication(request)
-        # Retrieve the user from the database
-        user = User.objects.get(email=user_data["email"])
-        # Retrieve the song ID from the URL
-        song_id = kwargs.get('id')
-        # Retrieve the song from the database
-        song = Song.objects.get(user=user, id=song_id)
-        # Delete the song from the database
-        song.delete()
-        # Return a success response
-        return JsonResponse({"message": "This song is deleted"}, status=204)
+        try:
+            # Authenticate the user and get their data
+            user_data = authentication(request)
+            # Retrieve the user from the database
+            user = User.objects.get(email=user_data["email"])
+            # Retrieve the song ID from the URL
+            song_id = kwargs.get('id')
+            # Retrieve the song from the database
+            try:
+                song = Song.objects.get(user=user, id=song_id)
+            except Song.DoesNotExist:
+                return JsonResponse(status=400, data={"error": {"message": "Song does not exist"}})
+            # Delete the song from the database
+            song.delete()
+            # Return a success response
+            return JsonResponse(status=200, data={"message": "This song is deleted"})
+        except InvalidSignatureError:
+            return JsonResponse(status=401, data={"error": {"message": "Unauthorized"}})
+        except Exception as e:
+            return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})
 
 
 def download_song(request, file_folder, file_name):
-    # Construct the absolute file path to the mp3 file
-    file_path = f'{file_folder}/{file_name}'
+    try:
+        # Construct the absolute file path to the mp3 file
+        file_path = f'{file_folder}/{file_name}'
 
-    # Set the Content-Disposition header to trigger the file download
-    response = FileResponse(open(file_path, 'rb'), content_type='audio/mpeg')
-    response['Content-Disposition'] = f'attachment; filename="{smart_str(os.path.basename(file_path))}"'
+        # Set the Content-Disposition header to trigger the file download
+        response = FileResponse(open(file_path, 'rb'), content_type='audio/mpeg')
+        response['Content-Disposition'] = f'attachment; filename="{smart_str(os.path.basename(file_path))}"'
 
-    return response
+        return response
+    except InvalidSignatureError:
+        return JsonResponse(status=401, data={"error": {"message": "Unauthorized"}})
+    except Exception as e:
+        return JsonResponse(status=500, data={"error": {"message": "Internal server error"}})

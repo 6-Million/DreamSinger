@@ -53,8 +53,6 @@ function AiCover() {
       const intervalId = setInterval(() => {
         setTimer(prevTimer => prevTimer + 1);
       }, 1000);
-
-
       return () => clearInterval(intervalId);
     }
   }, [showLoading]);
@@ -103,7 +101,7 @@ function AiCover() {
 
   const handleClear = () => {
     setFormData({
-      ...initialFormData,
+      ...initialFormData, 
       file: null,
     });
     setOutputFile("");

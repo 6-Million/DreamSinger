@@ -19,10 +19,7 @@ import Navbar from "../Components/Navbar";
 import {request} from "../utils";
 import ReactAudioPlayer from "react-audio-player";
 
-const init_songs = [
-    { id: 1, name: "rolling_ag.mp3", model: "Ariana Grande", src: "http://localhost:8000/cover/rolling_ag.mp3", download: "http://localhost:8000/api/v1/download/cover/rolling_ag.mp3" },
-    { id: 2, name: "yt_11.mp3", model: "Michael Jackson", src: "http://localhost:8000/cover/heyjude_mj.mp3", download: "http://localhost:8000/api/v1/download/cover/heyjude_mj.mp3" },
-];
+
 const modelMap = {
     0: "Michael Jackson",
     1: "Ariana Grande",
@@ -170,8 +167,6 @@ function Songs() {
                         <Button onClick={handleCloseView} style={{marginTop:"-5%"}}>Close</Button>
                     </DialogActions>
                 </Dialog>
-
-
                 <Dialog open={openRename} onClose={handleCloseRename}>
                     <DialogTitle>Rename Song</DialogTitle>
                     <DialogContent>

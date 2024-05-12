@@ -1,5 +1,3 @@
-//用户相关的状态管理
-
 import { createSlice } from "@reduxjs/toolkit";
 import { request, setToken as _setToken, getToken } from "../../utils";
 import { Navigate } from "react-router-dom";
@@ -7,15 +5,12 @@ import { Navigate } from "react-router-dom";
 const userStore = createSlice({
   name: "user",
   initialState: {
-    //初始化时候先从localStorage看看有没有token
     token: getToken() || "",
     userInfo: {},
   },
-  //同步修改方法
   reducers: {
     setToken(state, action) {
       state.token = action.payload;
-      //在localStorage中存储token
       _setToken(action.payload);
     },
     setUserInfo(state, action) {
@@ -24,18 +19,16 @@ const userStore = createSlice({
   },
 });
 
-//解构actionCreator
 const { setToken, setUserInfo } = userStore.actions;
-//导出reducer
 const userReducer = userStore.reducer;
 
 const fetchLogin = (loginForm) => {
   return async (dispatch) => {
     try {
-      const res = await request.post("/users/login/", loginForm); //访问后端请求
-      console.log("API Response:", res); // 查看API返回的数据
+      const res = await request.post("/users/login/", loginForm); 
+      console.log("API Response:", res);
       if (res && res.data.access_token) {
-        dispatch(setToken(res.data.access_token)); // 正确地访问 access_token
+        dispatch(setToken(res.data.access_token)); 
         return res.data.access_token;
       } else {
         alert("Email or Password is incorrect!");
@@ -46,7 +39,6 @@ const fetchLogin = (loginForm) => {
   };
 };
 
-//获取用户信息异步方法
 const fetchUserInfo = () => {
   return async (dispatch) => {
     try {
@@ -59,14 +51,13 @@ const fetchUserInfo = () => {
   };
 };
 
-// 更新用户信息的异步方法
 const updateUserInfo = (userInfo) => {
   return async (dispatch) => {
     try {
       const res = await request.put("/users/", userInfo);
       console.log("Update User Info Response:", res);
       if (res && res.data) {
-        dispatch(setUserInfo(res.data)); // 假设后端返回更新后的用户信息
+        dispatch(setUserInfo(res.data)); 
         alert("User info updated successfully!");
         return res.data;
       }
