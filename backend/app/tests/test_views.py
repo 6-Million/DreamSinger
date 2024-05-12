@@ -3,6 +3,7 @@ from app.models import User, Song
 import json
 import os
 from django.core.files.uploadedfile import SimpleUploadedFile
+from unittest.mock import patch
 
 class ViewsTestCase(TestCase):
     def setUp(self):
@@ -16,7 +17,7 @@ class ViewsTestCase(TestCase):
             "age": 25,
             "phone": "1234567890"
         }
-
+    
     def test_signup_success(self):
         response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
         self.assertEqual(response.status_code, 200)
@@ -131,8 +132,11 @@ class ViewsTestCase(TestCase):
 
         self.assertEqual(response.status_code, 401)
         self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Unauthorized")
-        
-    def test_post_song_with_file_success(self):
+    
+    @patch('app.views.generate_song')
+    def test_post_song_with_file_success(self, mock_generate_song):
+        mock_generate_song.return_value = 'cover/test_cover_song.mp3'
+
         response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
         access_token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
         headers = {'Authorization': f'Bearer {access_token}'}
@@ -147,7 +151,10 @@ class ViewsTestCase(TestCase):
         self.assertIn("outputfile", json.loads(response.content.decode("utf-8"))["data"])
         os.remove("media/test_song.mp3")
     
-    def test_post_song_with_file_invalid_format(self):
+    @patch('app.views.generate_song')
+    def test_post_song_with_file_invalid_format(self, mock_generate_song):
+        mock_generate_song.return_value = 'cover/test_cover_song.mp3'       
+        
         response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
         access_token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
         headers = {'Authorization': f'Bearer {access_token}'}
@@ -161,7 +168,10 @@ class ViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Invalid file format. Only .mp3 and .wav files are allowed.")
 
-    def test_post_song_with_yt_link_success(self):
+    @patch('app.views.generate_song')
+    def test_post_song_with_yt_link_success(self, mock_generate_song):
+        mock_generate_song.return_value = 'cover/test_cover_song.mp3'
+
         response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
         access_token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
         headers = {'Authorization': f'Bearer {access_token}'}
@@ -174,8 +184,11 @@ class ViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("outputfile", json.loads(response.content.decode("utf-8"))["data"])
         os.remove("media/Love Me Harder (Official Lyric Video).mp3")
-    
-    def test_post_song_with_invalid_yt_link(self):
+
+    @patch('app.views.generate_song')
+    def test_post_song_with_invalid_yt_link(self, mock_generate_song):
+        mock_generate_song.return_value = 'cover/test_cover_song.mp3'
+
         response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
         access_token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
         headers = {'Authorization': f'Bearer {access_token}'}
@@ -188,7 +201,10 @@ class ViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "YouTube link unavailable")
     
-    def test_post_song_with_two_methods(self):
+    @patch('app.views.generate_song')
+    def test_post_song_with_two_methods(self, mock_generate_song):
+        mock_generate_song.return_value = 'cover/test_cover_song.mp3'
+
         response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
         access_token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
         headers = {'Authorization': f'Bearer {access_token}'}
@@ -203,7 +219,10 @@ class ViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "You can only upload a file or provide a YouTube link, not both.")
     
-    def test_post_song_without_any_method(self):
+    @patch('app.views.generate_song')
+    def test_post_song_without_any_method(self, mock_generate_song):
+        mock_generate_song.return_value = 'cover/test_cover_song.mp3'
+
         response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
         access_token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
         headers = {'Authorization': f'Bearer {access_token}'}
@@ -215,7 +234,10 @@ class ViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Please provide a file or a YouTube link.")
     
-    def test_post_song_unauthorized(self):
+    @patch('app.views.generate_song')
+    def test_post_song_unauthorized(self, mock_generate_song):
+        mock_generate_song.return_value = 'cover/test_cover_song.mp3'
+
         song_data = {
             'model': 1,
         }
@@ -224,7 +246,10 @@ class ViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Unauthorized")
 
-    def test_get_songs_success(self):
+    @patch('app.views.generate_song')
+    def test_get_songs_success(self, mock_generate_song):
+        mock_generate_song.return_value = 'cover/test_cover_song.mp3'
+
         response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
         access_token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
         headers = {'Authorization': f'Bearer {access_token}'}
@@ -259,7 +284,10 @@ class ViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Unauthorized")
     
-    def test_get_song_success(self):
+    @patch('app.views.generate_song')
+    def test_get_song_success(self, mock_generate_song):
+        mock_generate_song.return_value = 'cover/test_cover_song.mp3'
+
         response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
         access_token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
         headers = {'Authorization': f'Bearer {access_token}'}
@@ -293,7 +321,10 @@ class ViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Unauthorized")
     
-    def test_put_song_success(self):
+    @patch('app.views.generate_song')
+    def test_put_song_success(self, mock_generate_song):
+        mock_generate_song.return_value = 'cover/test_cover_song.mp3'
+
         response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
         access_token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
         headers = {'Authorization': f'Bearer {access_token}'}
@@ -336,7 +367,10 @@ class ViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Unauthorized")
 
-    def test_delete_song_success(self):
+    @patch('app.views.generate_song')
+    def test_delete_song_success(self, mock_generate_song):
+        mock_generate_song.return_value = 'cover/test_cover_song.mp3'
+
         response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
         access_token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
         headers = {'Authorization': f'Bearer {access_token}'}
