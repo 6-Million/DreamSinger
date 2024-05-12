@@ -17,7 +17,9 @@ This file documents each team member's contributions to the project.
 
 ## Xiaowen Qiu (@Xiaowen)
 
-- 
+- Implemented an AI song conversion model. (Based on a github repository, adjusted some parts of it to suit our application)
+- Implemented backend APIs related to calling the AI song conversion model.
+- Wrote README file for AI song conversion APIs, including how to set up the environment, how to download the required model checkpoints, and how to call APIs to perform song conversion 
 
 ## Yi-Ting Han (@elanehan)
 

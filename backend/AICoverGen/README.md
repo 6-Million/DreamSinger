@@ -16,6 +16,10 @@
 3. Download the pretrain RVC checkpoints, unzip, put them into `backend/AICoverGen/rvc_models/`, and rename them with index number:
     - `0`: https://huggingface.co/PlayerBPlaytime/My-Models/resolve/main/MJInvincibleEra.zip
     - `1`: https://huggingface.co/coreliastreet/arianagrande2024/resolve/main/eternal.zip?download=true
+    - `2`: https://huggingface.co/orcungok20/freddie86-88/resolve/main/freddieSpecial_440Epoch.zip?download=true
+    - `3`: https://huggingface.co/szymixsiorek/RVC-Models/resolve/main/taylorredv2.zip?download=true
+    - `4`: https://huggingface.co/Florstie/Kurt_Cobain_byFlorst/resolve/main/Kurt_Florst.zip?download=true
+    - `5`: https://huggingface.co/Bilious/30Adele250/resolve/main/30Adele.zip?download=true
 
 ## Song Conversion APIs
 
