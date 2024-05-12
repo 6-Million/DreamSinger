@@ -12,7 +12,7 @@ urlpatterns = [
     path(API_VERSION_PREFIX + 'users/login/', csrf_exempt(views.login)),
     path(API_VERSION_PREFIX + 'users/', views.UserView.as_view()),
     path(API_VERSION_PREFIX + 'songs/', views.SongView.as_view()),
-    path(API_VERSION_PREFIX + 'songs/file/', views.SongFileView.as_view()),
+    path(API_VERSION_PREFIX + 'songs/file/<str:id>/', views.SongFileView.as_view()),
     path(API_VERSION_PREFIX + 'download/<str:file_folder>/<str:file_name>/', views.download_song),
 ]
 urlpatterns += static('cover/', document_root=os.path.join(settings.BASE_DIR, 'cover/'))

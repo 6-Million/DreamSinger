@@ -232,7 +232,7 @@ class SongView(View):
         num = request.GET.get('num', 10) # Default number of songs per page is 10 if not provided
 
         # Get all songs for the authenticated user and only the 'id' and 'name' fields
-        songs = Song.objects.filter(user=user).order_by('id').values('id', 'name', 'model')
+        songs = Song.objects.filter(user=user).order_by('id').values('id', 'name', 'model', 'file')
         paginator = Paginator(songs, num)  # Create a Paginator object
 
         try:
@@ -255,7 +255,7 @@ class SongFileView(View):
         # Retrieve the user from the database
         user = User.objects.get(email=user_data["email"])
         # Retrieve the song ID from the URL
-        song_id = request.GET.get('id')
+        song_id = kwargs.get('id')
         try:
             # Retrieve the song from the database
             song = Song.objects.get(user=user, id=song_id)
@@ -278,7 +278,7 @@ class SongFileView(View):
         # Retrieve the user from the database
         user = User.objects.get(email=user_data["email"])
         # Retrieve the song ID from the URL
-        song_id = request.GET.get('id')
+        song_id = kwargs.get('id')
         # Retrieve the song from the database
         song = Song.objects.get(user=user, id=song_id)
         # Extract the new name from the request
@@ -297,7 +297,7 @@ class SongFileView(View):
         # Retrieve the user from the database
         user = User.objects.get(email=user_data["email"])
         # Retrieve the song ID from the URL
-        song_id = request.GET.get('id')
+        song_id = kwargs.get('id')
         # Retrieve the song from the database
         song = Song.objects.get(user=user, id=song_id)
         # Delete the song from the database

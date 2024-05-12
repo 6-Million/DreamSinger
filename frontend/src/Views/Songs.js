@@ -94,11 +94,11 @@ function Songs() {
                 name: newSongName
             };
             const response = await request.put("/songs/file/" + currentSong.id + "/", data);
-            console.log(response);
-            // alert(response.data.message);
+            // console.log(response);
+            alert(response.message);
         } catch (error) {
-            console.log(error.message)
-            // alert(error.message)
+            // console.log(error.message)
+            alert(error.message)
         }
     };
 
@@ -114,11 +114,11 @@ function Songs() {
         try {
             // 然后从服务器删除歌曲
             const response = await request.delete("/songs/file/" + songId + "/");
-            // alert(response.data.message);
-            console.log(response);
+            alert(response.message);
+            // console.log(response);
         } catch (error) {
-            // alert(error.response.data.error.message)
-            console.log(error.message)
+            alert(error.message)
+            // console.log(error.message)
         }
     };
 
@@ -171,7 +171,7 @@ function Songs() {
                     </DialogActions>
                 </Dialog>
 
-                
+
                 <Dialog open={openRename} onClose={handleCloseRename}>
                     <DialogTitle>Rename Song</DialogTitle>
                     <DialogContent>
