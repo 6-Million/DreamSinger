@@ -241,7 +241,7 @@ class SongView(View):
             num = request.GET.get('num', 10) # Default number of songs per page is 10 if not provided
 
             # Get all songs for the authenticated user and only the 'id' and 'name' fields
-            songs = Song.objects.filter(user=user).order_by('id').values('id', 'name', 'model')
+            songs = Song.objects.filter(user=user).order_by('id').values('id', 'name', 'model', 'file')
             paginator = Paginator(songs, num)  # Create a Paginator object
 
             try:
