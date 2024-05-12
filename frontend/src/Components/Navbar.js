@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {AppBar, Toolbar, Typography, IconButton, MenuItem, Menu, Box} from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import { useNavigate } from 'react-router-dom';
 

@@ -46,12 +46,11 @@ function Songs() {
     const fetchSongs = (page, num) => {
         request.get(`/songs/`, { params: { page, num } })
             .then(response => {
-                // 假设后端返回的数据结构是 { data: [] }
                 setSongs(response);
             })
             .catch(error => {
                 console.error('Error fetching songs:', error);
-                setSongs([]);  // 发生错误或当前页没有数据时设置为空数组
+                setSongs([]);
             });
     };
 
@@ -75,26 +74,24 @@ function Songs() {
     };
 
     const handleSaveRename = async () => {
-        /// 创建新歌曲列表，用新名称更新选定歌曲
+        /// update on browser
         const updatedSongs = songs.map((song) => {
             if (song.id === currentSong.id) {
                 return { ...song, name: newSongName };
             }
             return song;
         });
-        setSongs(updatedSongs); // 更新歌曲列表
-        setOpenRename(false); // 关闭重命名对话框
+        setSongs(updatedSongs);
+        setOpenRename(false);
 
         try {
-            // 然后从服务器删除歌曲
+            // request
             const data = {
                 name: newSongName
             };
             const response = await request.put("/songs/file/" + currentSong.id + "/", data);
-            // console.log(response);
             alert(response.message);
         } catch (error) {
-            // console.log(error.message)
             alert(error.message)
         }
     };
@@ -104,18 +101,16 @@ function Songs() {
     };
 
     const handleDelete = async (songId) => {
-        // 先从本地状态中删除歌曲
+        // update on browser
         const updatedSongs = songs.filter(song => song.id !== songId);
         setSongs(updatedSongs);
 
         try {
-            // 然后从服务器删除歌曲
+            // request
             const response = await request.delete("/songs/file/" + songId + "/");
             alert(response.message);
-            // console.log(response);
         } catch (error) {
             alert(error.message)
-            // console.log(error.message)
         }
     };
 
@@ -167,6 +162,8 @@ function Songs() {
                         <Button onClick={handleCloseView} style={{marginTop:"-5%"}}>Close</Button>
                     </DialogActions>
                 </Dialog>
+
+                {/* rename Dialog */}
                 <Dialog open={openRename} onClose={handleCloseRename}>
                     <DialogTitle>Rename Song</DialogTitle>
                     <DialogContent>

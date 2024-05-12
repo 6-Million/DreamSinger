@@ -27,25 +27,16 @@ const initialFormData = {
   youtubelink: "",
   file: null,
   filename: "",
-  // outputfile: "/rolling_ag.mp3",
-  // outputfile: "/hey_jude_mj.mp3",
-    outputfile: "",
+  outputfile: "",
   imgUrl: "",
 };
 
 function AiCover() {
   const [formData, setFormData] = useState(initialFormData);
     const [outputFile, setOutputFile] = useState("");
-  // const [outputFile, setOutputFile] = useState("/rolling_ag.mp3");
-  // const [outputFile, setOutputFile] = useState("/hey_jude_mj.mp3");
   const [hoverBgImage, setHoverBgImage] = useState('url("/mj.jpg")');
   const [timer, setTimer] = useState(0);
   const [showLoading, setShowLoading] = useState(false);
-
-  useEffect(() => {
-    console.log('outputFile has been updated to:', outputFile);
-  }, [outputFile]);
-
 
   useEffect(() => {
     if (showLoading) {
