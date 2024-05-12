@@ -23,7 +23,8 @@ This file documents each team member's contributions to the project.
 
 ## Yi-Ting Han (@elanehan)
 
-- 
+- Developed backend APIs for uploading files, checking users' song lists, changing song names, and deleting songs.
+- Wrote the project README and API documentation.
 
 ## Yuefeng Zhang (@Lucoin-yf)
 
