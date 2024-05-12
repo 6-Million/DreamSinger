@@ -270,7 +270,7 @@ class ViewsTestCase(TestCase):
         response = self.client.post("/api/v1/songs/", song_data, headers=headers)
         os.remove("media/Love Me Harder (Official Lyric Video).mp3")
 
-        response = self.client.get('/api/v1/songs/file/', {'id': 1}, headers=headers)
+        response = self.client.get('/api/v1/songs/file/1/', headers=headers)
         song = json.loads(response.content.decode("utf-8"))
 
         self.assertEqual(response.status_code, 200)
@@ -282,13 +282,13 @@ class ViewsTestCase(TestCase):
         response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
         access_token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
         headers = {'Authorization': f'Bearer {access_token}'}
-        response = self.client.get('/api/v1/songs/file/', {'id': 1}, headers=headers)
+        response = self.client.get('/api/v1/songs/file/1/', headers=headers)
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Song does not exist")
         
     def test_get_song_unauthorized(self):
-        response = self.client.get('/api/v1/songs/file/', {'id': 1})
+        response = self.client.get('/api/v1/songs/file/1/')
 
         self.assertEqual(response.status_code, 401)
         self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Unauthorized")
@@ -307,11 +307,11 @@ class ViewsTestCase(TestCase):
         new_data = {
             "name": "new_song_name"
         }
-        response = self.client.put('/api/v1/songs/file/?id=1', json.dumps(new_data), headers=headers)
+        response = self.client.put('/api/v1/songs/file/1/', json.dumps(new_data), headers=headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json.loads(response.content.decode("utf-8"))["message"], "Name of the song is changed")
 
-        response = self.client.get('/api/v1/songs/file/', {'id': 1}, headers=headers)
+        response = self.client.get('/api/v1/songs/file/1/', headers=headers)
         song = json.loads(response.content.decode("utf-8"))
         self.assertEqual(song["name"], new_data["name"])
 
@@ -322,7 +322,7 @@ class ViewsTestCase(TestCase):
         new_data = {
             "name": "new_song_name"
         }
-        response = self.client.put('/api/v1/songs/file/?id=2', json.dumps(new_data), headers=headers)
+        response = self.client.put('/api/v1/songs/file/2/', json.dumps(new_data), headers=headers)
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Song does not exist")
@@ -331,7 +331,7 @@ class ViewsTestCase(TestCase):
         new_data = {
             "name": "new_song_name"
         }
-        response = self.client.put('/api/v1/songs/file/?id=1', json.dumps(new_data))
+        response = self.client.put('/api/v1/songs/file/1/', json.dumps(new_data))
 
         self.assertEqual(response.status_code, 401)
         self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Unauthorized")
@@ -347,24 +347,24 @@ class ViewsTestCase(TestCase):
         response = self.client.post("/api/v1/songs/", song_data, headers=headers)
         os.remove("media/Love Me Harder (Official Lyric Video).mp3")
 
-        response = self.client.delete('/api/v1/songs/file/?id=1', headers=headers)
+        response = self.client.delete('/api/v1/songs/file/1/', headers=headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json.loads(response.content.decode("utf-8"))["message"], "This song is deleted")
 
-        response = self.client.get('/api/v1/songs/file/', {'id': 1}, headers=headers)
+        response = self.client.get('/api/v1/songs/file/1/', headers=headers)
         self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Song does not exist")
 
     def test_delete_song_nonexistent(self):
         response = self.client.post("/api/v1/users/signup/", json.dumps(self.user_data), content_type="application/json")
         access_token = json.loads(response.content.decode("utf-8"))["data"]["access_token"]
         headers = {'Authorization': f'Bearer {access_token}'}
-        response = self.client.delete('/api/v1/songs/file/?id=1', headers=headers)
+        response = self.client.delete('/api/v1/songs/file/1/', headers=headers)
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Song does not exist")
 
     def test_delete_song_unauthorized(self):
-        response = self.client.delete('/api/v1/songs/file/?id=1')
+        response = self.client.delete('/api/v1/songs/file/1/')
 
         self.assertEqual(response.status_code, 401)
         self.assertEqual(json.loads(response.content.decode("utf-8"))["error"]["message"], "Unauthorized")
